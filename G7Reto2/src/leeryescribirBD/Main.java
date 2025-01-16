@@ -17,7 +17,7 @@ public class Main {
 		String hql = "from Users ";
 		Query q = session.createQuery(hql);
 		List<?> filas = q.list();
-
+System.out.println("Apellidos:");
 		for (int i = 0; i < filas.size(); i++) {
 			modelo.Users user = (modelo.Users) filas.get(i);
 			System.out.println(user.getApellidos());
@@ -39,6 +39,7 @@ public class Main {
 		users.setTipos(tipo);
 		session.save(users);
 		tx.commit();
+		System.out.println("Usuario: "+apellido+" añadido");
 		session.close();
 
 	}

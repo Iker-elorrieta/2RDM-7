@@ -38,6 +38,7 @@ public class HiloServidor extends Thread {
 				System.out.println("Cliente " + clienteId + " - Contraseña: " + contrasena);
 
 				autenticado = comprobarUsuario(usuario, contrasena) != null;
+				System.out.println(autenticado);
 				dos.writeBoolean(autenticado);
 
 				if (autenticado) {
