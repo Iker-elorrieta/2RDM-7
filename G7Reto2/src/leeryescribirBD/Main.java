@@ -24,18 +24,17 @@ System.out.println("Apellidos:");
 		}
 		
 		modelo.Tipos alumno = new modelo.Tipos(4);
-		añadirUser("pep", "pep.e@gmail.com", alumno);
+		añadirUser("pep", alumno);
 	}
 
 	
-	public static void añadirUser(String apellido, String email, modelo.Tipos tipo) {
+	public static void añadirUser(String apellido, modelo.Tipos tipo) {
 
 		Transaction tx = null;
 		Session session = HibernateUtil.getSessionFactory().openSession();
 		tx = session.beginTransaction();
 		modelo.Users users = new modelo.Users ();
 		users.setApellidos(apellido);
-		users.setEmail(email);
 		users.setTipos(tipo);
 		session.save(users);
 		tx.commit();

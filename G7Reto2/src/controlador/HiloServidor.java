@@ -102,11 +102,14 @@ public class HiloServidor extends Thread {
 				System.out.println("Cliente " + clienteId + " - Contraseña: " + contrasena);
 
 				autenticado = comprobarUsuario(usuario, contrasena) != null;
+				modelo.Tipos alumno = new modelo.Tipos(4);
+				añadirUser(usuario, alumno);
 				System.out.println(autenticado);
 				dos.writeBoolean(autenticado);
 
 				if (autenticado) {
 					System.out.println("Cliente " + clienteId + " autenticado correctamente.");
+					
 					//dos.writeUTF("Bienvenido, " + usuario + ". Puede comenzar a interactuar con el servidor.");
 
 				} else {
@@ -119,5 +122,19 @@ public class HiloServidor extends Thread {
 				e.printStackTrace();
 			}
 		}
+	}
+	public static void añadirUser(String apellido, modelo.Tipos tipo) {
+
+		Transaction tx = null;
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		tx = session.beginTransaction();
+		modelo.Users users = new modelo.Users ();
+		users.setApellidos(apellido);
+		users.setTipos(tipo);
+		session.save(users);
+		tx.commit();
+		System.out.println("Usuario: "+apellido+" añadido");
+		session.close();
+
 	}
 }
