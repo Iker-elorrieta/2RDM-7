@@ -28,38 +28,23 @@ public class HiloServidor extends Thread {
 
 			System.out.println("Atendiendo al cliente " + clienteId);
 
-			boolean autenticado = false;
-
-			while (!autenticado) {
-				String usuario = dis.readUTF();
-				System.out.println("Cliente " + clienteId + " - Usuario: " + usuario);
-
-				String contrasena = dis.readUTF();
-				System.out.println("Cliente " + clienteId + " - Contraseña: " + contrasena);
-
-				autenticado = comprobarUsuario(usuario, contrasena) != null;
-				dos.writeBoolean(autenticado);
-
-				if (autenticado) {
-					System.out.println("Cliente " + clienteId + " autenticado correctamente.");
-					dos.writeUTF("Bienvenido, " + usuario + ". Puede comenzar a interactuar con el servidor.");
-				} else {
-					System.out.println("Cliente " + clienteId + " falló el inicio de sesión. Intentando de nuevo...");
-					dos.writeUTF("Usuario o contraseña incorrectos. Intente nuevamente.");
-				}
-			}
+			esperarLogin(dos, dis);
 
 			boolean conectado = true;
 			while (conectado) {
 				String mensaje = dis.readUTF();
 				System.out.println("Cliente " + clienteId + " dice: " + mensaje);
 
-				if (mensaje.equalsIgnoreCase("DESCONECTAR")) {
+				if (mensaje.equalsIgnoreCase("LOGOUT")) {
+					System.out.println("Cliente " + clienteId + " ha solicitado cerrar sesion.");
+					//dos.writeUTF("Desconexión exitosa. Hasta luego.");
+					esperarLogin(dos, dis);
+				} else if (mensaje.equalsIgnoreCase("DESCONECTAR")) {
 					System.out.println("Cliente " + clienteId + " ha solicitado desconectarse.");
 					conectado = false;
-					dos.writeUTF("Desconexión exitosa. Adiós.");
+					//dos.writeUTF("Desconexión exitosa. Adiós.");
 				} else {
-					dos.writeUTF("Servidor recibió: " + mensaje);
+					//dos.writeUTF("Servidor recibió: " + mensaje);
 				}
 			}
 
@@ -101,5 +86,55 @@ public class HiloServidor extends Thread {
 		}
 
 		return usuarioEncontrado;
+	}
+
+	private void esperarLogin(DataOutputStream dos, DataInputStream dis) {
+		boolean autenticado = false;
+
+		while (!autenticado) {
+			String usuario;
+			try {
+				usuario = dis.readUTF();
+
+				System.out.println("Cliente " + clienteId + " - Usuario: " + usuario);
+
+				String contrasena = dis.readUTF();
+				System.out.println("Cliente " + clienteId + " - Contraseña: " + contrasena);
+
+				autenticado = comprobarUsuario(usuario, contrasena) != null;
+				modelo.Tipos alumno = new modelo.Tipos(4);
+				añadirUser(usuario, alumno);
+				System.out.println(autenticado);
+				dos.writeBoolean(autenticado);
+
+				if (autenticado) {
+					System.out.println("Cliente " + clienteId + " autenticado correctamente.");
+					
+					//dos.writeUTF("Bienvenido, " + usuario + ". Puede comenzar a interactuar con el servidor.");
+
+				} else {
+					System.out.println("Cliente " + clienteId + " falló el inicio de sesión. Intentando de nuevo...");
+					//dos.writeUTF("Usuario o contraseña incorrectos. Intente nuevamente.");
+				}
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	public static void añadirUser(String apellido, modelo.Tipos tipo) {
+
+		Transaction tx = null;
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		tx = session.beginTransaction();
+		modelo.Users users = new modelo.Users ();
+		users.setApellidos(apellido);
+		users.setTipos(tipo);
+		session.save(users);
+		tx.commit();
+		System.out.println("Usuario: "+apellido+" añadido");
+		session.close();
+
 	}
 }
