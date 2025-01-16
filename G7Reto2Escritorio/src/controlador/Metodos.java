@@ -10,7 +10,7 @@ import modelo.Conexion;
 
 public class Metodos {
 	
-	public static boolean Login(JTextField campoUsuario, JTextField campoClave, JLabel errorLabel) {
+	public boolean Login(JTextField campoUsuario, JTextField campoClave, JLabel errorLabel) {
 		String usuario = campoUsuario.getText().toString();
 		String clave = campoClave.getText().toString();
 		
@@ -33,5 +33,13 @@ public class Metodos {
 			} catch(Exception ioe) { errorLabel.setText("no se pudo iniciar sesion"); }
 		}
 		return false;
+	}
+	
+	public void Desconectar() {
+		try {
+			DataOutputStream output = new DataOutputStream(Conexion.conexion.getOutputStream());
+			
+			output.writeUTF("LOGOUT");
+		} catch(Exception ioe) {  }
 	}
 }

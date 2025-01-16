@@ -19,6 +19,8 @@ public class Principal extends JFrame {
 		PANEL_REUNIONES
 	}
 
+	private Metodos metodos;
+	
 	private JPanel panelContenedor;
 	private Login login;
 	private Menu menu;
@@ -28,6 +30,8 @@ public class Principal extends JFrame {
 
 	public Principal() {
 
+		metodos = new Metodos();
+		
 		crearPanelContenedor();
 		crearPanelLogin();
 		crearPanelMenu();
@@ -54,13 +58,15 @@ public class Principal extends JFrame {
 		login.getLoginBoton().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				boolean respuesta = Metodos.Login(login.getUsuarioCampo(), login.getClaveCampo(), login.getErrorLabel());
+				login.getLoginBoton().setEnabled(false);
+				boolean respuesta = metodos.Login(login.getUsuarioCampo(), login.getClaveCampo(), login.getErrorLabel());
 				if (respuesta) {
 					login.getUsuarioCampo().setText("");
 					login.getClaveCampo().setText("");
 					login.getErrorLabel().setText("");
 					visualizarPaneles(enumAcciones.PANEL_MENU);
 				}
+				login.getLoginBoton().setEnabled(true);
 			}
 		});
 	}
@@ -73,6 +79,7 @@ public class Principal extends JFrame {
 		menu.getSalirBoton().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				metodos.Desconectar();
 				visualizarPaneles(enumAcciones.PANEL_LOGIN);
 			}
 		});
