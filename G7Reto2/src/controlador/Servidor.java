@@ -23,6 +23,8 @@ public class Servidor {
 				clienteThread.start();
 
 				id++;
+				
+				
 			}
 
 		} catch (IOException e) {
