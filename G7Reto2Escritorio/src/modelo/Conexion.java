@@ -12,4 +12,7 @@ public class Conexion {
 	public Conexion() throws IOException {
 		Conexion.conexion = new Socket(direccion, puerto);
 	}
+	public Conexion(String direccionAlternativa) throws IOException {
+		Conexion.conexion = new Socket(direccionAlternativa, puerto);
+	}
 }

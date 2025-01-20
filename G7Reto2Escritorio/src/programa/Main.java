@@ -11,8 +11,11 @@ public class Main {
 		// iniciar conexion con el servidor
 		try { new Conexion(); }
 		catch(Exception e) {
-			JOptionPane.showMessageDialog(null, "Error al conectarse al servidor, finalizando aplicacion.", "Error al conectar", JOptionPane.WARNING_MESSAGE);
-			return;
+			try { new Conexion("127.0.0.1"); }
+			catch(Exception e2) {
+				JOptionPane.showMessageDialog(null, "Error al conectarse al servidor, finalizando aplicacion.", "Error al conectar", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
 		}
 		
 		Principal ventana = new Principal();
