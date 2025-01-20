@@ -73,11 +73,6 @@
 <version>3.25.0-GA</version>
 
 </dependency>
-<dependency>
-			<groupId>ORM</groupId>
-			<artifactId>ORM</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
 		</dependencies>
   <build>
     <sourceDirectory>src</sourceDirectory>

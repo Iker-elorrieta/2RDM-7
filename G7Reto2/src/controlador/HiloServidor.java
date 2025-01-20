@@ -103,7 +103,7 @@ public class HiloServidor extends Thread {
 
 				autenticado = comprobarUsuario(usuario, contrasena) != null;
 				modelo.Tipos alumno = new modelo.Tipos(4);
-				añadirUser(usuario, alumno);
+		
 				System.out.println(autenticado);
 				dos.writeBoolean(autenticado);
 
