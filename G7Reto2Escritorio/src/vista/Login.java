@@ -20,7 +20,7 @@ public class Login extends JPanel {
 		setBounds(0, 0, 450, 300);
 		setLayout(null);
 		
-		loginBoton = new JButton("Iniciar session");
+		loginBoton = new JButton("Iniciar sesion");
 		loginBoton.setBounds(157, 178, 135, 23);
 		add(loginBoton);
 		
