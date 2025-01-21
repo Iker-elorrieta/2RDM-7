@@ -28,17 +28,17 @@ public class HiloServidor extends Thread {
 
 			System.out.println("Atendiendo al cliente " + clienteId);
 
-			esperarLogin(dos, dis);
+			boolean _conectado = esperarLogin(dos, dis);
 
 			boolean conectado = true;
-			while (conectado) {
+			while (conectado && _conectado) {
 				String mensaje = dis.readUTF();
 				System.out.println("Cliente " + clienteId + " dice: " + mensaje);
 
 				if (mensaje.equalsIgnoreCase("LOGOUT")) {
 					System.out.println("Cliente " + clienteId + " ha solicitado cerrar sesion.");
 					//dos.writeUTF("Desconexión exitosa. Hasta luego.");
-					esperarLogin(dos, dis);
+					_conectado = esperarLogin(dos, dis);
 				} else if (mensaje.equalsIgnoreCase("DESCONECTAR")) {
 					System.out.println("Cliente " + clienteId + " ha solicitado desconectarse.");
 					conectado = false;
@@ -88,14 +88,18 @@ public class HiloServidor extends Thread {
 		return usuarioEncontrado;
 	}
 
-	private void esperarLogin(DataOutputStream dos, DataInputStream dis) {
+	private boolean esperarLogin(DataOutputStream dos, DataInputStream dis) {
 		boolean autenticado = false;
 
 		while (!autenticado) {
 			String usuario;
 			try {
 				usuario = dis.readUTF();
-
+				if (usuario.equalsIgnoreCase("DESCONECTAR")) {
+					System.out.println("Cliente " + clienteId + " ha solicitado desconectarse.");
+					return false;
+				}
+				
 				System.out.println("Cliente " + clienteId + " - Usuario: " + usuario);
 
 				String contrasena = dis.readUTF();
@@ -103,7 +107,7 @@ public class HiloServidor extends Thread {
 
 				autenticado = comprobarUsuario(usuario, contrasena) != null;
 				modelo.Tipos alumno = new modelo.Tipos(4);
-		
+				añadirUser(usuario, alumno);
 				System.out.println(autenticado);
 				dos.writeBoolean(autenticado);
 
@@ -122,18 +126,29 @@ public class HiloServidor extends Thread {
 				e.printStackTrace();
 			}
 		}
+		return true;
 	}
-	public static void añadirUser(String apellido, modelo.Tipos tipo) {
+	public static void añadirUser(String username, modelo.Tipos tipo) {
 
 		Transaction tx = null;
 		Session session = HibernateUtil.getSessionFactory().openSession();
 		tx = session.beginTransaction();
 		modelo.Users users = new modelo.Users ();
-		users.setApellidos(apellido);
 		users.setTipos(tipo);
+		users.setUsername(username);
+		users.setPassword("pass");
+		users.setNombre(username);
+		users.setApellidos("apellido");
+		users.setDni("dni");
+		users.setDireccion("direccion");
+		users.setTelefono1(null);
+		users.setTelefono2(null);
+		
+		
+		
 		session.save(users);
 		tx.commit();
-		System.out.println("Usuario: "+apellido+" añadido");
+		System.out.println("Usuario: "+username+" añadido");
 		session.close();
 
 	}

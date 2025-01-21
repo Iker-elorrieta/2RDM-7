@@ -2,11 +2,16 @@ package vista;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import controlador.Metodos;
+import modelo.Conexion;
 
 public class Principal extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -40,6 +45,22 @@ public class Principal extends JFrame {
 		crearPanelReuniones();
 
 		visualizarPaneles(enumAcciones.PANEL_LOGIN);
+		
+		addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent windowEvent) {
+                try {
+                    DataOutputStream output = new DataOutputStream(Conexion.conexion.getOutputStream());
+                    output.writeUTF("DESCONECTAR");
+                    output.flush();
+                    
+                    Conexion.conexion.close();
+                    dispose();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 	}
 
 	private void crearPanelContenedor() {
