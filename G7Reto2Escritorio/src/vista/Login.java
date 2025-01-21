@@ -2,6 +2,7 @@ package vista;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 import java.awt.Color;
@@ -29,10 +30,12 @@ public class Login extends JPanel {
 		add(usuarioCampo);
 		usuarioCampo.setColumns(10);
 		
-		claveCampo = new JTextField();
+		
+		claveCampo = new JPasswordField();
 		claveCampo.setBounds(85, 119, 278, 20);
 		add(claveCampo);
 		claveCampo.setColumns(10);
+
 		
 		JLabel lblNewLabel = new JLabel("usuario");
 		lblNewLabel.setBounds(85, 43, 278, 14);
