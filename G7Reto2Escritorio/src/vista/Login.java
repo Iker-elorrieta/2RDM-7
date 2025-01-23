@@ -18,7 +18,7 @@ public class Login extends JPanel {
 	private JLabel mensajeError;
 
 	public Login() {
-		setBounds(0, 0, 450, 300);
+		setBounds(0, 0, 520, 380);
 		setLayout(null);
 		
 		loginBoton = new JButton("Iniciar sesion");

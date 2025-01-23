@@ -13,7 +13,7 @@ public class Menu extends JPanel {
 	private JButton salirBoton;
 	
 	public Menu() {
-		setBounds(0, 0, 450, 300);
+		setBounds(0, 0, 520, 380);
 		setLayout(null);
 		
 		horarioBoton = new JButton("Consultar horario");

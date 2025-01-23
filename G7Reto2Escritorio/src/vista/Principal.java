@@ -65,7 +65,7 @@ public class Principal extends JFrame {
 
 	private void crearPanelContenedor() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(0, 0, 450, 300);
+		setBounds(0, 0, 520, 380);
 		panelContenedor = new JPanel();
 		setContentPane(panelContenedor);
 		panelContenedor.setLayout(null);

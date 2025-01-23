@@ -12,7 +12,7 @@ public class Horario extends JPanel {
 	private JButton volverBoton;
 	
 	public Horario() {
-		setBounds(0, 0, 450, 300);
+		setBounds(0, 0, 520, 380);
 		setLayout(null);
 		
 		volverBoton = new JButton("Volver");
