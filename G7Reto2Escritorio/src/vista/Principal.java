@@ -139,6 +139,7 @@ public class Principal extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				visualizarPaneles(enumAcciones.PANEL_OTROS);
+				otros.getTablaPanel().setVisible(false);
 
 				String[] profesoresArray = new String[0];
 				try {
@@ -204,6 +205,7 @@ public class Principal extends JFrame {
                 	ioe.printStackTrace();
                 }
 				otros.setHorarios(horariosArray);
+				otros.getTablaPanel().setVisible(true);
 		    }
 		});
 	}

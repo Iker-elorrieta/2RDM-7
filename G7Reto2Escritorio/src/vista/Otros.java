@@ -17,6 +17,7 @@ public class Otros extends JPanel {
 	private JButton volverBoton;
 	private JTable table;
 	JComboBox<String> profesorCombo;
+	JScrollPane horarioPanel;
 	
 	private DefaultComboBoxModel<String> comboModelo = new DefaultComboBoxModel<String>(new String[] {});
 	private DefaultTableModel modelo = new DefaultTableModel(
@@ -48,7 +49,7 @@ public class Otros extends JPanel {
 		lblNewLabel.setBounds(0, 3, 600, 14);
 		add(lblNewLabel);
 		
-		JScrollPane horarioPanel = new JScrollPane();
+		horarioPanel = new JScrollPane();
 		horarioPanel.setBounds(10, 77, 580, 292);
 		add(horarioPanel);
 		
@@ -73,6 +74,10 @@ public class Otros extends JPanel {
 	
 	public JComboBox<String> getProfesorCombo() {
 		return this.profesorCombo;
+	}
+
+	public JScrollPane getTablaPanel() {
+		return this.horarioPanel;
 	}
 	
 	public int[] getProfesores() {
