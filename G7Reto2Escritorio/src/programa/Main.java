@@ -9,7 +9,7 @@ public class Main {
 	
 	public static void main(String[] args) {
 		// iniciar conexion con el servidor
-		try { new Conexion(); }
+		try { new Conexion("127.0.0.1"); }
 		catch(Exception e) {
 			// esto es para que si falla la conexion con la ip del servidor pruebe con un servidor local
 			try { new Conexion("127.0.0.1"); }

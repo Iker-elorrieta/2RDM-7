@@ -1,11 +1,14 @@
 package vista;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -33,6 +36,8 @@ public class Principal extends JFrame {
 	private Otros otros;
 	private Reuniones reuniones;
 
+	private ObjectInputStream ois;
+	
 	public Principal() {
 
 		metodos = new Metodos();
@@ -61,11 +66,17 @@ public class Principal extends JFrame {
                 }
             }
         });
+		
+		try {
+			ois = new ObjectInputStream(Conexion.conexion.getInputStream());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void crearPanelContenedor() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(0, 0, 520, 380);
+		setBounds(0, 0, 600, 380);
 		panelContenedor = new JPanel();
 		setContentPane(panelContenedor);
 		panelContenedor.setLayout(null);
@@ -109,6 +120,18 @@ public class Principal extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				visualizarPaneles(enumAcciones.PANEL_HORARIO);
+				
+				String[] horariosArray = new String[0];
+				try {
+                    DataOutputStream output = new DataOutputStream(Conexion.conexion.getOutputStream());
+                    output.writeUTF("HORARIO");
+                    output.flush();
+
+                    if (ois != null) horariosArray = (String[]) ois.readObject();
+                } catch (IOException | ClassNotFoundException ioe) {
+                	ioe.printStackTrace();
+                }
+				horario.setHorarios(horariosArray);
 			}
 		});
 
@@ -116,6 +139,18 @@ public class Principal extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				visualizarPaneles(enumAcciones.PANEL_OTROS);
+
+				String[] profesoresArray = new String[0];
+				try {
+                    DataOutputStream output = new DataOutputStream(Conexion.conexion.getOutputStream());
+                    output.writeUTF("PROFESORES");
+                    output.flush();
+
+                    if (ois != null) profesoresArray = (String[]) ois.readObject();
+                } catch (IOException | ClassNotFoundException ioe) {
+                	ioe.printStackTrace();
+                }
+				otros.setProfesores(profesoresArray);
 			}
 		});
 
@@ -150,6 +185,26 @@ public class Principal extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				visualizarPaneles(enumAcciones.PANEL_MENU);
 			}
+		});
+		
+		otros.getProfesorCombo().addActionListener (new ActionListener () {
+		    public void actionPerformed(ActionEvent e) {
+		    	String[] horariosArray = new String[0];
+				try {
+                    DataOutputStream output = new DataOutputStream(Conexion.conexion.getOutputStream());
+                    output.writeUTF("OTROS");
+                    output.flush();
+                    
+                    System.out.println(otros.getProfesorCombo().getSelectedIndex());
+                    output.writeInt(otros.getProfesores()[otros.getProfesorCombo().getSelectedIndex()]);
+                    output.flush();
+
+                    if (ois != null) horariosArray = (String[]) ois.readObject();
+                } catch (IOException | ClassNotFoundException ioe) {
+                	ioe.printStackTrace();
+                }
+				otros.setHorarios(horariosArray);
+		    }
 		});
 	}
 

@@ -12,7 +12,7 @@ public class Reuniones extends JPanel {
 	private JButton volverBoton;
 	
 	public Reuniones() {
-		setBounds(0, 0, 520, 380);
+		setBounds(0, 0, 600, 380);
 		setLayout(null);
 		
 		volverBoton = new JButton("Volver");
