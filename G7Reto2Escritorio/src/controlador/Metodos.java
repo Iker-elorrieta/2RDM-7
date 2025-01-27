@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
 
 import modelo.Conexion;
 
@@ -54,5 +55,28 @@ public class Metodos {
         output.flush();
         
         Conexion.conexion.close();
+	}
+	
+	public void AplicarHorarios(DefaultTableModel modelo, String[] horarios) {
+		for (int c = 1; c < modelo.getColumnCount(); c++) {
+			for (int r = 0; r < modelo.getRowCount(); r++) {
+				modelo.setValueAt(null, r, c);
+			}
+		}
+		for (int i = 0; i < horarios.length; i++) {
+			String[] split = horarios[i].split(",");
+			
+			int hora = Integer.parseInt(split[1]);
+			int dia = -1;
+			switch (split[2].charAt(0)) {
+				case 'L': dia = 0; break;
+				case 'M': dia = 1; break;
+				case 'X': dia = 2; break;
+				case 'J': dia = 3; break;
+				case 'V': dia = 4; break;
+			}
+			if (dia != -1)
+				modelo.setValueAt(split[0], hora, dia + 1);
+		}
 	}
 }

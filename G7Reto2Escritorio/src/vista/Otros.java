@@ -7,6 +7,9 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
+
+import controlador.Metodos;
+
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 
@@ -18,6 +21,8 @@ public class Otros extends JPanel {
 	private JTable table;
 	JComboBox<String> profesorCombo;
 	JScrollPane horarioPanel;
+	
+	private Metodos metodos = new Metodos();
 	
 	private DefaultComboBoxModel<String> comboModelo = new DefaultComboBoxModel<String>(new String[] {});
 	private DefaultTableModel modelo = new DefaultTableModel(
@@ -93,6 +98,6 @@ public class Otros extends JPanel {
 	
 	public void setHorarios(String[] horarios) {
 		System.out.println(horarios.length);
-		Horario.aplicarHorarios(modelo, horarios);
+		metodos.AplicarHorarios(modelo, horarios);
 	}
 }

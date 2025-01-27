@@ -5,10 +5,11 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
+
+import controlador.Metodos;
+
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import java.awt.Color;
-import java.awt.SystemColor;
 
 public class Horario extends JPanel {
 
@@ -16,6 +17,8 @@ public class Horario extends JPanel {
 
 	private JButton volverBoton;
 	private JTable table;
+	
+	private Metodos metodos = new Metodos();
 	
 	private DefaultTableModel modelo = new DefaultTableModel(
 			new Object[][] {
@@ -63,29 +66,6 @@ public class Horario extends JPanel {
 	}
 	
 	public void setHorarios(String[] horarios) {
-		aplicarHorarios(modelo, horarios);
-	}
-	
-	public static void aplicarHorarios(DefaultTableModel modelo, String[] horarios) {
-		for (int c = 1; c < modelo.getColumnCount(); c++) {
-			for (int r = 0; r < modelo.getRowCount(); r++) {
-				modelo.setValueAt(null, r, c);
-			}
-		}
-		for (int i = 0; i < horarios.length; i++) {
-			String[] split = horarios[i].split(",");
-			
-			int hora = Integer.parseInt(split[1]);
-			int dia = -1;
-			switch (split[2].charAt(0)) {
-				case 'L': dia = 0; break;
-				case 'M': dia = 1; break;
-				case 'X': dia = 2; break;
-				case 'J': dia = 3; break;
-				case 'V': dia = 4; break;
-			}
-			if (dia != -1)
-				modelo.setValueAt(split[0], hora, dia + 1);
-		}
+		metodos.AplicarHorarios(modelo, horarios);
 	}
 }
