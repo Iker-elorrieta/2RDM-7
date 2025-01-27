@@ -72,7 +72,6 @@ public class Otros extends JPanel {
 		            Object val = getValueAt(row, column);
 		            if (val != null) {
 		            	String completo = horariosCompleto[row][column];
-			            System.out.println(completo);
 		            	jc.setToolTipText(completo);
 		            } else 
 		            	jc.setToolTipText("-");
