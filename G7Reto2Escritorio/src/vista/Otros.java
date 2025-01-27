@@ -6,6 +6,7 @@ import javax.swing.JTable;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
@@ -65,6 +66,8 @@ public class Otros extends JPanel {
 		add(horarioPanel);
 		
 		table = new JTable() {
+			private static final long serialVersionUID = 1L;
+
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
 		        Component c = super.prepareRenderer(renderer, row, column);
 		        if (c instanceof JComponent) {
@@ -79,6 +82,7 @@ public class Otros extends JPanel {
 		        return c;
 		    }
 		};
+		table.setFillsViewportHeight(true);
 		table.setEnabled(false);
 		table.setRowSelectionAllowed(false);
 		table.setModel(modelo);
@@ -86,6 +90,11 @@ public class Otros extends JPanel {
 		table.getColumnModel().getColumn(0).setMinWidth(40);
 		table.getColumnModel().getColumn(0).setMaxWidth(50);
 		horarioPanel.setViewportView(table);
+
+		int altura = Math.max((table.getParent().getParent().getBounds().height - 22) / table.getRowCount(), 20);
+		for (int row = 0; row < table.getRowCount(); row++) {
+	        table.setRowHeight(altura);
+	    }
 		
 		profesorCombo = new JComboBox<String>();
 		profesorCombo.setModel(comboModelo);
