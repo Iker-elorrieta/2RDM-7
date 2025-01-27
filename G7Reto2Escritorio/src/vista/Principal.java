@@ -13,6 +13,7 @@ import java.io.ObjectInputStream;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import controlador.InterfazControl;
 import controlador.Metodos;
 import modelo.Conexion;
 
@@ -27,7 +28,8 @@ public class Principal extends JFrame {
 		PANEL_REUNIONES
 	}
 
-	private Metodos metodos;
+	private Metodos metodos = new Metodos();
+	private InterfazControl interfaz = new InterfazControl();
 	
 	private JPanel panelContenedor;
 	private Login login;
@@ -35,13 +37,8 @@ public class Principal extends JFrame {
 	private Horario horario;
 	private Otros otros;
 	private Reuniones reuniones;
-
-	private ObjectInputStream ois;
 	
 	public Principal() {
-
-		metodos = new Metodos();
-		
 		crearPanelContenedor();
 		crearPanelLogin();
 		crearPanelMenu();
@@ -55,11 +52,7 @@ public class Principal extends JFrame {
             @Override
             public void windowClosing(WindowEvent windowEvent) {
                 try {
-                    DataOutputStream output = new DataOutputStream(Conexion.conexion.getOutputStream());
-                    output.writeUTF("DESCONECTAR");
-                    output.flush();
-                    
-                    Conexion.conexion.close();
+                	metodos.Cerrar();
                     dispose();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -67,16 +60,13 @@ public class Principal extends JFrame {
             }
         });
 		
-		try {
-			ois = new ObjectInputStream(Conexion.conexion.getInputStream());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		interfaz.CrearInputStream();
 	}
 
 	private void crearPanelContenedor() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(0, 0, 600, 380);
+		setResizable(false);
+		setBounds(0, 0, 716, 419);
 		panelContenedor = new JPanel();
 		setContentPane(panelContenedor);
 		panelContenedor.setLayout(null);
@@ -121,17 +111,7 @@ public class Principal extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				visualizarPaneles(enumAcciones.PANEL_HORARIO);
 				
-				String[] horariosArray = new String[0];
-				try {
-                    DataOutputStream output = new DataOutputStream(Conexion.conexion.getOutputStream());
-                    output.writeUTF("HORARIO");
-                    output.flush();
-
-                    if (ois != null) horariosArray = (String[]) ois.readObject();
-                } catch (IOException | ClassNotFoundException ioe) {
-                	ioe.printStackTrace();
-                }
-				horario.setHorarios(horariosArray);
+				horario.setHorarios(interfaz.ObtenerHorarios());
 			}
 		});
 
@@ -141,17 +121,7 @@ public class Principal extends JFrame {
 				visualizarPaneles(enumAcciones.PANEL_OTROS);
 				otros.getTablaPanel().setVisible(false);
 
-				String[] profesoresArray = new String[0];
-				try {
-                    DataOutputStream output = new DataOutputStream(Conexion.conexion.getOutputStream());
-                    output.writeUTF("PROFESORES");
-                    output.flush();
-
-                    if (ois != null) profesoresArray = (String[]) ois.readObject();
-                } catch (IOException | ClassNotFoundException ioe) {
-                	ioe.printStackTrace();
-                }
-				otros.setProfesores(profesoresArray);
+				otros.setProfesores(interfaz.ObtenerProfesores());
 			}
 		});
 
@@ -190,21 +160,7 @@ public class Principal extends JFrame {
 		
 		otros.getProfesorCombo().addActionListener (new ActionListener () {
 		    public void actionPerformed(ActionEvent e) {
-		    	String[] horariosArray = new String[0];
-				try {
-                    DataOutputStream output = new DataOutputStream(Conexion.conexion.getOutputStream());
-                    output.writeUTF("OTROS");
-                    output.flush();
-                    
-                    System.out.println(otros.getProfesorCombo().getSelectedIndex());
-                    output.writeInt(otros.getProfesores()[otros.getProfesorCombo().getSelectedIndex()]);
-                    output.flush();
-
-                    if (ois != null) horariosArray = (String[]) ois.readObject();
-                } catch (IOException | ClassNotFoundException ioe) {
-                	ioe.printStackTrace();
-                }
-				otros.setHorarios(horariosArray);
+				otros.setHorarios(interfaz.ObtenerOtrosHorarios(otros.profesores, otros.getProfesorCombo()));
 				otros.getTablaPanel().setVisible(true);
 		    }
 		});

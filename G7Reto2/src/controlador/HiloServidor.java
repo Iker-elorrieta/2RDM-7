@@ -21,6 +21,12 @@ public class HiloServidor extends Thread {
 	private Socket cliente;
 	private int clienteId;
 	private int userId;
+	
+	private final String mensajeLogout = "LOGOUT";
+	private final String mensajeDesconectar= "DESCONECTAR";
+	private final String mensajeHorario = "HORARIO";
+	private final String mensajeProfesores = "PROFESORES";
+	private final String mensajeOtros = "OTROS";
 
 	public HiloServidor(Socket cliente, int clienteId) {
 		this.cliente = cliente;
@@ -42,21 +48,21 @@ public class HiloServidor extends Thread {
 				String mensaje = dis.readUTF();
 				System.out.println("Cliente " + clienteId + " dice: " + mensaje);
 
-				if (mensaje.equalsIgnoreCase("LOGOUT")) {
+				if (mensaje.equalsIgnoreCase(mensajeLogout)) {
 					System.out.println("Cliente " + clienteId + " ha solicitado cerrar sesion.");
 					_conectado = esperarLogin(dos, dis);
-				} else if (mensaje.equalsIgnoreCase("DESCONECTAR")) {
+				} else if (mensaje.equalsIgnoreCase(mensajeDesconectar)) {
 					System.out.println("Cliente " + clienteId + " ha solicitado desconectarse.");
 					conectado = false;
-				} else if (mensaje.equalsIgnoreCase("HORARIO")) {
+				} else if (mensaje.equalsIgnoreCase(mensajeHorario)) {
 					String[] array = obtenerHorario(userId);
 		            oos.writeObject(array);
 		            oos.flush();
-				} else if (mensaje.equalsIgnoreCase("PROFESORES")) {
+				} else if (mensaje.equalsIgnoreCase(mensajeProfesores)) {
 					String[] array = obtenerProfesores();
 		            oos.writeObject(array);
 		            oos.flush();
-				} else if (mensaje.equalsIgnoreCase("OTROS")) {
+				} else if (mensaje.equalsIgnoreCase(mensajeOtros)) {
 					int profe = dis.readInt();
 					String[] array = obtenerHorario(profe);
 		            oos.writeObject(array);
@@ -112,7 +118,7 @@ public class HiloServidor extends Thread {
 			String usuario;
 			try {
 				usuario = dis.readUTF();
-				if (usuario.equalsIgnoreCase("DESCONECTAR")) {
+				if (usuario.equalsIgnoreCase(mensajeDesconectar)) {
 					System.out.println("Cliente " + clienteId + " ha solicitado desconectarse.");
 					return false;
 				}
@@ -128,15 +134,10 @@ public class HiloServidor extends Thread {
 				System.out.println(autenticado);
 				dos.writeBoolean(autenticado);
 
-				if (autenticado) {
+				if (autenticado)
 					System.out.println("Cliente " + clienteId + " autenticado correctamente.");
-					
-					//dos.writeUTF("Bienvenido, " + usuario + ". Puede comenzar a interactuar con el servidor.");
-
-				} else {
+				else
 					System.out.println("Cliente " + clienteId + " falló el inicio de sesión. Intentando de nuevo...");
-					//dos.writeUTF("Usuario o contraseña incorrectos. Intente nuevamente.");
-				}
 
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

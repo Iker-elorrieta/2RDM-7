@@ -37,7 +37,7 @@ public class Otros extends JPanel {
 	int[] profesores;
 	
 	public Otros() {
-		setBounds(0, 0, 600, 380);
+		setBounds(0, 0, 700, 380);
 		setLayout(null);
 		
 		volverBoton = new JButton("Volver");
@@ -46,15 +46,15 @@ public class Otros extends JPanel {
 		
 		JLabel lblNewLabel = new JLabel("OTROS HORARIOS");
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		lblNewLabel.setBounds(0, 3, 600, 14);
+		lblNewLabel.setBounds(0, 3, 700, 14);
 		add(lblNewLabel);
 		
 		horarioPanel = new JScrollPane();
-		horarioPanel.setBounds(10, 77, 580, 292);
+		horarioPanel.setBounds(10, 77, 680, 292);
 		add(horarioPanel);
 		
 		table = new JTable();
-		table.setFillsViewportHeight(true);
+		table.setEnabled(false);
 		table.setRowSelectionAllowed(false);
 		table.setModel(modelo);
 		table.getColumnModel().getColumn(0).setPreferredWidth(50);
@@ -64,7 +64,7 @@ public class Otros extends JPanel {
 		
 		profesorCombo = new JComboBox<String>();
 		profesorCombo.setModel(comboModelo);
-		profesorCombo.setBounds(210, 44, 184, 22);
+		profesorCombo.setBounds(261, 44, 184, 22);
 		add(profesorCombo);
 	}
 
@@ -78,10 +78,6 @@ public class Otros extends JPanel {
 
 	public JScrollPane getTablaPanel() {
 		return this.horarioPanel;
-	}
-	
-	public int[] getProfesores() {
-		return this.profesores;
 	}
 	
 	public void setProfesores(String[] profesores) {

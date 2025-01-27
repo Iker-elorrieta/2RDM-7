@@ -7,6 +7,8 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import java.awt.Color;
+import java.awt.SystemColor;
 
 public class Horario extends JPanel {
 
@@ -30,7 +32,7 @@ public class Horario extends JPanel {
 		);
 	
 	public Horario() {
-		setBounds(0, 0, 600, 380);
+		setBounds(0, 0, 700, 380);
 		setLayout(null);
 		
 		volverBoton = new JButton("Volver");
@@ -39,15 +41,15 @@ public class Horario extends JPanel {
 		
 		JLabel lblNewLabel = new JLabel("HORARIO");
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		lblNewLabel.setBounds(0, 3, 600, 14);
+		lblNewLabel.setBounds(0, 3, 700, 14);
 		add(lblNewLabel);
 		
 		JScrollPane horarioPanel = new JScrollPane();
-		horarioPanel.setBounds(10, 45, 580, 324);
+		horarioPanel.setBounds(10, 45, 680, 324);
 		add(horarioPanel);
 		
 		table = new JTable();
-		table.setFillsViewportHeight(true);
+		table.setEnabled(false);
 		table.setRowSelectionAllowed(false);
 		table.setModel(modelo);
 		table.getColumnModel().getColumn(0).setPreferredWidth(50);

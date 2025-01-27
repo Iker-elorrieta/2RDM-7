@@ -2,6 +2,7 @@ package controlador;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -9,6 +10,9 @@ import javax.swing.JTextField;
 import modelo.Conexion;
 
 public class Metodos {
+	
+	private final String mensajeDesconectar = "DESCONECTAR";
+	private final String mensajeLogout = "LOGOUT";
 	
 	public boolean Login(JTextField campoUsuario, JTextField campoClave, JLabel errorLabel) {
 		String usuario = campoUsuario.getText().toString();
@@ -39,7 +43,16 @@ public class Metodos {
 		try {
 			DataOutputStream output = new DataOutputStream(Conexion.conexion.getOutputStream());
 			
-			output.writeUTF("LOGOUT");
+			output.writeUTF(mensajeLogout);
 		} catch(Exception ioe) {  }
+	}
+
+
+	public void Cerrar() throws IOException {
+		DataOutputStream output = new DataOutputStream(Conexion.conexion.getOutputStream());
+        output.writeUTF(mensajeDesconectar);
+        output.flush();
+        
+        Conexion.conexion.close();
 	}
 }
