@@ -7,10 +7,15 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 
 import controlador.Metodos;
 
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
+
+import java.awt.Component;
+
 import javax.swing.DefaultComboBoxModel;
 
 public class Otros extends JPanel {
@@ -23,7 +28,8 @@ public class Otros extends JPanel {
 	JScrollPane horarioPanel;
 	
 	private Metodos metodos = new Metodos();
-	
+
+	private String[][] horariosCompleto = new String[6][6];
 	private DefaultComboBoxModel<String> comboModelo = new DefaultComboBoxModel<String>(new String[] {});
 	private DefaultTableModel modelo = new DefaultTableModel(
 			new Object[][] {
@@ -58,7 +64,22 @@ public class Otros extends JPanel {
 		horarioPanel.setBounds(10, 77, 680, 292);
 		add(horarioPanel);
 		
-		table = new JTable();
+		table = new JTable() {
+			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+		        Component c = super.prepareRenderer(renderer, row, column);
+		        if (c instanceof JComponent) {
+		            JComponent jc = (JComponent) c;
+		            Object val = getValueAt(row, column);
+		            if (val != null) {
+		            	String completo = horariosCompleto[row][column];
+			            System.out.println(completo);
+		            	jc.setToolTipText(completo);
+		            } else 
+		            	jc.setToolTipText("-");
+		        }
+		        return c;
+		    }
+		};
 		table.setEnabled(false);
 		table.setRowSelectionAllowed(false);
 		table.setModel(modelo);
@@ -97,7 +118,6 @@ public class Otros extends JPanel {
 	}
 	
 	public void setHorarios(String[] horarios) {
-		System.out.println(horarios.length);
-		metodos.AplicarHorarios(modelo, horarios);
+		horariosCompleto = metodos.AplicarHorarios(modelo, horarios);
 	}
 }

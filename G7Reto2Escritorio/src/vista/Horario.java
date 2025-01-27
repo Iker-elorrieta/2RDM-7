@@ -1,10 +1,15 @@
 package vista;
 
 import javax.swing.JPanel;
+
+import java.awt.Component;
+
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 
 import controlador.Metodos;
 
@@ -20,6 +25,7 @@ public class Horario extends JPanel {
 	
 	private Metodos metodos = new Metodos();
 	
+	private String[][] horariosCompleto = new String[6][6];
 	private DefaultTableModel modelo = new DefaultTableModel(
 			new Object[][] {
 				{"1", null, null, null, null, null},
@@ -51,7 +57,22 @@ public class Horario extends JPanel {
 		horarioPanel.setBounds(10, 45, 680, 324);
 		add(horarioPanel);
 		
-		table = new JTable();
+		table = new JTable() {
+			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+		        Component c = super.prepareRenderer(renderer, row, column);
+		        if (c instanceof JComponent) {
+		            JComponent jc = (JComponent) c;
+		            Object val = getValueAt(row, column);
+		            if (val != null) {
+		            	String completo = horariosCompleto[row][column];
+			            System.out.println(completo);
+		            	jc.setToolTipText(completo);
+		            } else 
+		            	jc.setToolTipText("-");
+		        }
+		        return c;
+		    }
+		};
 		table.setEnabled(false);
 		table.setRowSelectionAllowed(false);
 		table.setModel(modelo);
@@ -66,6 +87,6 @@ public class Horario extends JPanel {
 	}
 	
 	public void setHorarios(String[] horarios) {
-		metodos.AplicarHorarios(modelo, horarios);
+		horariosCompleto = metodos.AplicarHorarios(modelo, horarios);
 	}
 }

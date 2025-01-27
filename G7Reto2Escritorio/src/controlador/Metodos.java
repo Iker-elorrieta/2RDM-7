@@ -3,6 +3,11 @@ package controlador;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.text.Normalizer;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -57,10 +62,12 @@ public class Metodos {
         Conexion.conexion.close();
 	}
 	
-	public void AplicarHorarios(DefaultTableModel modelo, String[] horarios) {
+	public String[][] AplicarHorarios(DefaultTableModel modelo, String[] horarios) {
+		String[][] horariosCompleto = new String[modelo.getRowCount()][modelo.getColumnCount()];
 		for (int c = 1; c < modelo.getColumnCount(); c++) {
 			for (int r = 0; r < modelo.getRowCount(); r++) {
 				modelo.setValueAt(null, r, c);
+				horariosCompleto[r][c] = "";
 			}
 		}
 		for (int i = 0; i < horarios.length; i++) {
@@ -75,8 +82,16 @@ public class Metodos {
 				case 'J': dia = 3; break;
 				case 'V': dia = 4; break;
 			}
-			if (dia != -1)
-				modelo.setValueAt(split[0], hora, dia + 1);
+			if (dia != -1) {
+				horariosCompleto[hora][dia + 1] = split[0];
+		        Set<String> ignorado = new HashSet<>(Arrays.asList("de", "a", "e", "y"));
+				String corta = Arrays.stream(split[0].split(" "))
+		                .filter(word -> !ignorado.contains(word.toLowerCase())) // Remove ignored words
+		                .map(word -> Normalizer.normalize(word, Normalizer.Form.NFKD).replaceAll("\\B.|\\P{L}", "").toUpperCase()) // Process remaining words
+		                .collect(Collectors.joining(""));
+				modelo.setValueAt(corta, hora, dia + 1);
+			}
 		}
+		return horariosCompleto;
 	}
 }
