@@ -6,16 +6,20 @@ import javax.swing.JTable;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
+import javax.swing.ToolTipManager;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
 import controlador.Metodos;
+import modelo.CenterCellRenderer;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 
 import java.awt.Component;
+import java.awt.Font;
+import java.awt.Rectangle;
 
 import javax.swing.DefaultComboBoxModel;
 
@@ -64,7 +68,7 @@ public class Otros extends JPanel {
 		horarioPanel = new JScrollPane();
 		horarioPanel.setBounds(10, 77, 680, 292);
 		add(horarioPanel);
-		
+
 		table = new JTable() {
 			private static final long serialVersionUID = 1L;
 
@@ -75,9 +79,13 @@ public class Otros extends JPanel {
 		            Object val = getValueAt(row, column);
 		            if (val != null) {
 		            	String completo = horariosCompleto[row][column];
-		            	jc.setToolTipText(completo);
-		            } else 
-		            	jc.setToolTipText("-");
+		            	if (completo != null) {
+		            		Rectangle rect = table.getCellRect(row, column, true);
+		            		String result = metodos.WarpString(completo, val, jc, (int) rect.getWidth(), (int) rect.getHeight());
+		            		if (result != null)
+		            			setValueAt(result, row, column);
+		            	}
+		            }
 		        }
 		        return c;
 		    }
@@ -91,6 +99,11 @@ public class Otros extends JPanel {
 		table.getColumnModel().getColumn(0).setMaxWidth(50);
 		horarioPanel.setViewportView(table);
 
+		CenterCellRenderer renderer = new CenterCellRenderer();
+		for (int col = 0; col < table.getColumnCount(); col++) {
+			table.getColumnModel().getColumn(col).setCellRenderer(renderer);
+		}
+		
 		int altura = Math.max((table.getParent().getParent().getBounds().height - 22) / table.getRowCount(), 20);
 		for (int row = 0; row < table.getRowCount(); row++) {
 	        table.setRowHeight(altura);

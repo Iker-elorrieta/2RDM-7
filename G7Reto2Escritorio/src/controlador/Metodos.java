@@ -1,5 +1,7 @@
 package controlador;
 
+import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -7,8 +9,10 @@ import java.text.Normalizer;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
@@ -84,14 +88,41 @@ public class Metodos {
 			}
 			if (dia != -1) {
 				horariosCompleto[hora][dia + 1] = split[0];
-		        Set<String> ignorado = new HashSet<>(Arrays.asList("de", "a", "e", "y"));
-				String corta = Arrays.stream(split[0].split(" "))
-		                .filter(word -> !ignorado.contains(word.toLowerCase())) // Remove ignored words
-		                .map(word -> Normalizer.normalize(word, Normalizer.Form.NFKD).replaceAll("\\B.|\\P{L}", "").toUpperCase()) // Process remaining words
-		                .collect(Collectors.joining(""));
-				modelo.setValueAt(corta, hora, dia + 1);
+		        modelo.setValueAt(split[0], hora, dia + 1);
 			}
 		}
 		return horariosCompleto;
+	}
+	
+	public String WarpString(String input, Object val, JComponent componente, int ancho, int alto) {
+		Graphics g = componente.getGraphics();
+    	if (g != null && val != null && val.toString().contentEquals(input)) {
+    		String resultado = "";
+        	FontMetrics met = g.getFontMetrics();
+        	String[] split = input.split(" ");
+        	int anchoTotal = 0;
+        	int lineas = 1;
+        	for (String palabra : split) {
+            	int width = met.stringWidth(palabra+" ");
+            	anchoTotal += width;
+            	if (anchoTotal < ancho) {
+            		resultado += " "+palabra;
+            	} else {
+            		resultado += "<br>"+palabra;
+            		anchoTotal = 0;
+            		lineas++;
+            	}
+        	}
+        	if (lineas * met.getHeight() > alto) {
+		        Set<String> ignorado = new HashSet<>(Arrays.asList("de", "a", "e", "y"));
+				String corta = Arrays.stream(input.split(" "))
+		                .filter(word -> !ignorado.contains(word.toLowerCase()))
+		                .map(word -> Normalizer.normalize(word, Normalizer.Form.NFKD).replaceAll("\\B.|\\P{L}", "").toUpperCase())
+		                .collect(Collectors.joining(""));
+				return corta;
+        	}
+        	return "<html>"+resultado.substring(1)+"</html>";
+    	}
+		return null;
 	}
 }

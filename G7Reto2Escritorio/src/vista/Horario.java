@@ -2,20 +2,28 @@ package vista;
 
 import javax.swing.JPanel;
 
+import java.awt.Color;
 import java.awt.Component;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
+import javax.swing.ToolTipManager;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 
 import controlador.Metodos;
+import modelo.CenterCellRenderer;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Rectangle;
 
 public class Horario extends JPanel {
 
@@ -29,7 +37,7 @@ public class Horario extends JPanel {
 	private String[][] horariosCompleto = new String[6][6];
 	private DefaultTableModel modelo = new DefaultTableModel(
 			new Object[][] {
-				{"1", null, null, null, null, null},
+				{"1", "hola/nmundo", null, null, null, null},
 				{"2", null, null, null, null, null},
 				{"3", null, null, null, null, null},
 				{"4", null, null, null, null, null},
@@ -68,9 +76,13 @@ public class Horario extends JPanel {
 		            Object val = getValueAt(row, column);
 		            if (val != null) {
 		            	String completo = horariosCompleto[row][column];
-		            	jc.setToolTipText(completo);
-		            } else 
-		            	jc.setToolTipText("-");
+		            	if (completo != null) {
+		            		Rectangle rect = table.getCellRect(row, column, true);
+		            		String result = metodos.WarpString(completo, val, jc, (int) rect.getWidth(), (int) rect.getHeight());
+		            		if (result != null)
+		            			setValueAt(result, row, column);
+		            	}
+		            }
 		        }
 		        return c;
 		    }
@@ -83,6 +95,11 @@ public class Horario extends JPanel {
 		table.getColumnModel().getColumn(0).setMinWidth(40);
 		table.getColumnModel().getColumn(0).setMaxWidth(50);
 		horarioPanel.setViewportView(table);
+		
+		CenterCellRenderer renderer = new CenterCellRenderer();
+		for (int col = 0; col < table.getColumnCount(); col++) {
+			table.getColumnModel().getColumn(col).setCellRenderer(renderer);
+		}
 		
 		int altura = Math.max((table.getParent().getParent().getBounds().height - 22) / table.getRowCount(), 20);
 		for (int row = 0; row < table.getRowCount(); row++) {
