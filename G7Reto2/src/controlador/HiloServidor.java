@@ -89,7 +89,7 @@ public class HiloServidor extends Thread {
 		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
 			tx = session.beginTransaction();
 
-			String hql = "FROM Users WHERE username = :username AND password = :password AND tipos.name='profesor'";
+			String hql = "FROM Users WHERE username = :username AND password = :password AND (tipos.name='profesor' OR tipos.name='administrador' OR tipos.name='god')";
 			Query query = session.createQuery(hql);
 			query.setParameter("username", usuario);
 			query.setParameter("password", contrasena);
