@@ -1,7 +1,9 @@
 package controlador;
 
+import java.awt.Component;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -14,8 +16,10 @@ import java.util.stream.Collectors;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 
 import modelo.Conexion;
 
@@ -94,6 +98,22 @@ public class Metodos {
 		return horariosCompleto;
 	}
 	
+	public void PrepararRenderer(JTable tabla, Component c, String[][] horariosComepleto, TableCellRenderer renderer, int row, int column) {
+        if (c instanceof JComponent) {
+            JComponent jc = (JComponent) c;
+            Object val = tabla.getValueAt(row, column);
+            if (val != null) {
+            	String completo = horariosComepleto[row][column];
+            	if (completo != null) {
+            		Rectangle rect = tabla.getCellRect(row, column, true);
+            		String result = WarpString(completo, val, jc, (int) rect.getWidth(), (int) rect.getHeight());
+            		if (result != null)
+            			tabla.setValueAt(result, row, column);
+            	}
+            }
+        }
+	}
+	
 	public String WarpString(String input, Object val, JComponent componente, int ancho, int alto) {
 		Graphics g = componente.getGraphics();
     	if (g != null && val != null && val.toString().contentEquals(input)) {
@@ -105,15 +125,15 @@ public class Metodos {
         	for (String palabra : split) {
             	int width = met.stringWidth(palabra+" ");
             	anchoTotal += width;
-            	if (anchoTotal < ancho) {
+            	if (anchoTotal < (ancho - 10)) {
             		resultado += " "+palabra;
             	} else {
             		resultado += "<br>"+palabra;
-            		anchoTotal = 0;
+            		anchoTotal = width;
             		lineas++;
             	}
         	}
-        	if (lineas * met.getHeight() > alto) {
+        	if (lineas * met.getHeight() > (alto - 10)) {
 		        Set<String> ignorado = new HashSet<>(Arrays.asList("de", "a", "e", "y"));
 				String corta = Arrays.stream(input.split(" "))
 		                .filter(word -> !ignorado.contains(word.toLowerCase()))

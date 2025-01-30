@@ -37,7 +37,7 @@ public class Horario extends JPanel {
 	private String[][] horariosCompleto = new String[6][6];
 	private DefaultTableModel modelo = new DefaultTableModel(
 			new Object[][] {
-				{"1", "hola/nmundo", null, null, null, null},
+				{"1", null, null, null, null, null},
 				{"2", null, null, null, null, null},
 				{"3", null, null, null, null, null},
 				{"4", null, null, null, null, null},
@@ -70,20 +70,8 @@ public class Horario extends JPanel {
 			private static final long serialVersionUID = 1L;
 
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
-		        Component c = super.prepareRenderer(renderer, row, column);
-		        if (c instanceof JComponent) {
-		            JComponent jc = (JComponent) c;
-		            Object val = getValueAt(row, column);
-		            if (val != null) {
-		            	String completo = horariosCompleto[row][column];
-		            	if (completo != null) {
-		            		Rectangle rect = table.getCellRect(row, column, true);
-		            		String result = metodos.WarpString(completo, val, jc, (int) rect.getWidth(), (int) rect.getHeight());
-		            		if (result != null)
-		            			setValueAt(result, row, column);
-		            	}
-		            }
-		        }
+				Component c = super.prepareRenderer(renderer, row, column);
+				metodos.PrepararRenderer(table, c, horariosCompleto, renderer, row, column);
 		        return c;
 		    }
 		};
