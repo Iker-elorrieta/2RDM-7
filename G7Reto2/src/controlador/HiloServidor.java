@@ -14,7 +14,6 @@ import org.hibernate.Transaction;
 
 import leeryescribirBD.HibernateUtil;
 import modelo.Horarios;
-import modelo.HorariosId;
 import modelo.Users;
 
 public class HiloServidor extends Thread {
@@ -50,34 +49,42 @@ public class HiloServidor extends Thread {
 				String mensaje = dis.readUTF();
 				System.out.println("Cliente " + clienteId + " dice: " + mensaje);
 
-				if (mensaje.equalsIgnoreCase(mensajeLogout)) {
-					System.out.println("Cliente " + clienteId + " ha solicitado cerrar sesion.");
-					_conectado = esperarLogin(dos, dis, oos);
-				} else if (mensaje.equalsIgnoreCase(mensajeDesconectar)) {
-					System.out.println("Cliente " + clienteId + " ha solicitado desconectarse.");
-					conectado = false;
-				} else if (mensaje.equalsIgnoreCase(mensajeHorario)) {
-					String[] array = obtenerHorario(userId);
-		            oos.writeObject(array);
-		            oos.flush();
-				} else if (mensaje.equalsIgnoreCase(mensajeProfesores)) {
-					String[] array = obtenerProfesores();
-		            oos.writeObject(array);
-		            oos.flush();
-				} else if (mensaje.equalsIgnoreCase(mensajeOtros)) {
-					int profe = dis.readInt();
-					String[] array = obtenerHorario(profe);
-		            oos.writeObject(array);
-		            oos.flush();
-				} else if(mensaje.equalsIgnoreCase(mensajeHorarioAlum)) {
-                    String[] array = obtenerHorarioAlumno(userId);
-                    oos.writeObject(array);
-                    oos.flush();
-                } else if(mensaje.equalsIgnoreCase(mensajeListaAlum)) {
-                    String[] array = obtenerListaAlumnos();
-                    oos.writeObject(array);
-                    oos.flush();
-                }
+				switch (mensaje) {
+					case mensajeLogout:
+						System.out.println("Cliente " + clienteId + " ha solicitado cerrar sesion.");
+						_conectado = esperarLogin(dos, dis, oos);
+						break;
+					case mensajeDesconectar:
+						System.out.println("Cliente " + clienteId + " ha solicitado desconectarse.");
+						conectado = false;
+						break;
+					case mensajeHorario:
+						String[] array = obtenerHorario(userId);
+			            oos.writeObject(array);
+			            oos.flush();
+						break;
+					case mensajeProfesores:
+						String[] array1 = obtenerProfesores();
+			            oos.writeObject(array1);
+			            oos.flush();
+						break;
+					case mensajeOtros:
+						int profe = dis.readInt();
+						String[] array2 = obtenerHorario(profe);
+			            oos.writeObject(array2);
+			            oos.flush();
+						break;
+					case mensajeHorarioAlum:
+	                    String[] array3 = obtenerHorarioAlumno(userId);
+	                    oos.writeObject(array3);
+	                    oos.flush();
+						break;
+					case mensajeListaAlum:
+	                    String[] array4 = obtenerListaAlumnos();
+	                    oos.writeObject(array4);
+	                    oos.flush();
+						break;
+				}
 			}
 
 		} catch (IOException e) {

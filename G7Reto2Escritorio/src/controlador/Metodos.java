@@ -12,7 +12,6 @@ import java.text.Normalizer;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import javax.swing.JComboBox;
@@ -62,10 +61,8 @@ public class Metodos {
 				System.out.println("recieved: " + String.valueOf(respuesta));
 				
 				if (respuesta) {
-					if (oinput != null) {
-						Object[] datos = (Object[]) oinput.readObject();
-						System.out.println(datos.length);
-					}
+					Object[] datos;
+					if (oinput != null) datos = (Object[]) oinput.readObject();
 				} else
 					errorLabel.setText("credenciales invalidas");
 				
