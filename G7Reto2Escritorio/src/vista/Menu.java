@@ -13,19 +13,19 @@ public class Menu extends JPanel {
 	private JButton salirBoton;
 	
 	public Menu() {
-		setBounds(0, 0, 450, 300);
+		setBounds(0, 0, 700, 380);
 		setLayout(null);
 		
 		horarioBoton = new JButton("Consultar horario");
-		horarioBoton.setBounds(125, 74, 182, 23);
+		horarioBoton.setBounds(257, 133, 182, 23);
 		add(horarioBoton);
 		
 		otroBoton = new JButton("Consultar otros horarios");
-		otroBoton.setBounds(125, 121, 182, 23);
+		otroBoton.setBounds(257, 180, 182, 23);
 		add(otroBoton);
 		
 		reunionesBoton = new JButton("Ver reuiniones");
-		reunionesBoton.setBounds(125, 167, 182, 23);
+		reunionesBoton.setBounds(257, 226, 182, 23);
 		add(reunionesBoton);
 		
 		salirBoton = new JButton("Salir");
