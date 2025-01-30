@@ -27,6 +27,8 @@ public class HiloServidor extends Thread {
 	private final String mensajeHorario = "HORARIO";
 	private final String mensajeProfesores = "PROFESORES";
 	private final String mensajeOtros = "OTROS";
+	private final String mensajeHorarioAlum = "HORARIOALUMNO";
+	private final String mensajeListaAlum = "LISTAALUMNOS";
 
 	public HiloServidor(Socket cliente, int clienteId) {
 		this.cliente = cliente;
@@ -41,7 +43,7 @@ public class HiloServidor extends Thread {
 
 			System.out.println("Atendiendo al cliente " + clienteId);
 
-			boolean _conectado = esperarLogin(dos, dis);
+			boolean _conectado = esperarLogin(dos, dis, oos);
 
 			boolean conectado = true;
 			while (conectado && _conectado) {
@@ -50,7 +52,7 @@ public class HiloServidor extends Thread {
 
 				if (mensaje.equalsIgnoreCase(mensajeLogout)) {
 					System.out.println("Cliente " + clienteId + " ha solicitado cerrar sesion.");
-					_conectado = esperarLogin(dos, dis);
+					_conectado = esperarLogin(dos, dis, oos);
 				} else if (mensaje.equalsIgnoreCase(mensajeDesconectar)) {
 					System.out.println("Cliente " + clienteId + " ha solicitado desconectarse.");
 					conectado = false;
@@ -67,7 +69,15 @@ public class HiloServidor extends Thread {
 					String[] array = obtenerHorario(profe);
 		            oos.writeObject(array);
 		            oos.flush();
-				}
+				} else if(mensaje.equalsIgnoreCase(mensajeHorarioAlum)) {
+                    String[] array = obtenerHorarioAlumno(userId);
+                    oos.writeObject(array);
+                    oos.flush();
+                } else if(mensaje.equalsIgnoreCase(mensajeListaAlum)) {
+                    String[] array = obtenerListaAlumnos();
+                    oos.writeObject(array);
+                    oos.flush();
+                }
 			}
 
 		} catch (IOException e) {
@@ -111,41 +121,54 @@ public class HiloServidor extends Thread {
 		return usuarioEncontrado;
 	}
 
-	private boolean esperarLogin(DataOutputStream dos, DataInputStream dis) {
-		boolean autenticado = false;
+	private boolean esperarLogin(DataOutputStream dos, DataInputStream dis, ObjectOutputStream oos) {
+        boolean autenticado = false;
 
-		while (!autenticado) {
-			String usuario;
-			try {
-				usuario = dis.readUTF();
-				if (usuario.equalsIgnoreCase(mensajeDesconectar)) {
-					System.out.println("Cliente " + clienteId + " ha solicitado desconectarse.");
-					return false;
-				}
-				
-				System.out.println("Cliente " + clienteId + " - Usuario: " + usuario);
+        while (!autenticado) {
+            String usuario;
+            try {
+                usuario = dis.readUTF();
+                if (usuario.equalsIgnoreCase(mensajeDesconectar)) {
+                    System.out.println("Cliente " + clienteId + " ha solicitado desconectarse.");
+                    return false;
+                }
 
-				String contrasena = dis.readUTF();
-				System.out.println("Cliente " + clienteId + " - Contraseña: " + contrasena);
+                System.out.println("Cliente " + clienteId + " - Usuario: " + usuario);
 
-				autenticado = comprobarUsuario(usuario, contrasena) != null;
-				//modelo.Tipos alumno = new modelo.Tipos(4);
-				//añadirUser(alumno);
-				System.out.println(autenticado);
-				dos.writeBoolean(autenticado);
+                String contrasena = dis.readUTF();
+                System.out.println("Cliente " + clienteId + " - Contraseña: " + contrasena);
+                Users usuario1= comprobarUsuario(usuario, contrasena);
+                autenticado = usuario1 != null;
 
-				if (autenticado)
-					System.out.println("Cliente " + clienteId + " autenticado correctamente.");
-				else
-					System.out.println("Cliente " + clienteId + " falló el inicio de sesión. Intentando de nuevo...");
+                System.out.println(autenticado);
+                dos.writeBoolean(autenticado);
+                dos.flush();   
 
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		return true;
-	}
+                if (autenticado) {
+                    System.out.println("Cliente " + clienteId + " autenticado correctamente.");
+                    
+                    Object[] datosUsuario = new Object[] {
+                    	usuario1.getTipos().getId(),
+                    	usuario1.getId(),
+                    	usuario1.getEmail(),
+                    	usuario1.getUsername(),
+                    	usuario1.getNombre(),
+                    	usuario1.getApellidos(),
+                    	usuario1.getDni()
+                    };
+                    oos.writeObject(datosUsuario);
+                    oos.flush(); 
+                } else
+                    System.out.println("Cliente " + clienteId + " falló el inicio de sesión. Intentando de nuevo...");
+
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        return true;
+    }
+	
 	public static void añadirUser(modelo.Tipos tipo) {
 
 		Transaction tx = null;
@@ -228,4 +251,76 @@ public class HiloServidor extends Thread {
 
 		return profesores.toArray(new String[profesores.size()]);
 	}
+	
+	private String[] obtenerHorarioAlumno(int alumnoID) {
+        Transaction tx = null;
+        String[] horarios = new String[0];
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            tx = session.beginTransaction();
+
+            String hql = "select h.modulos.nombre, h.id.hora, h.id.dia "
+                       + "from Horarios h "
+                       + "where h.modulos.ciclos.id = (select m.ciclos.id from Matriculaciones m where m.users.id = :idUsuario) "
+                       + "and h.modulos.curso = (select mat.id.curso from Matriculaciones mat where mat.users.id = :idUsuario) "
+                       + "order by h.id.dia, h.id.hora";
+            
+            Query query = session.createQuery(hql);
+            query.setParameter("idUsuario", alumnoID); 
+
+        
+            List<Object[]> horariosEncontrados = query.list();
+            horarios = new String[horariosEncontrados.size()];
+
+            
+            for (int i = 0; i < horarios.length; i++) {
+                Object[] row = horariosEncontrados.get(i);
+                String nombreModulo = (String) row[0];
+                Integer hora = (Integer) row[1];
+                Integer dia = (Integer) row[2];
+
+                horarios[i] = nombreModulo + "," + hora + "," + dia;
+            }
+
+            tx.commit();
+        } catch (Exception ex) {
+            if (tx != null) {
+                tx.rollback();
+            }
+            ex.printStackTrace();
+        }
+
+        return horarios;
+    }
+	
+    private String[] obtenerListaAlumnos() {
+        Transaction tx = null;
+        String[] horarios = new String[0];
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            tx = session.beginTransaction();
+
+            String hql = "FROM Users WHERE tipo_id = 4";
+            Query query = session.createQuery(hql);
+            
+
+            List<Users> horariosEncontrados = query.list();
+            horarios = new String[horariosEncontrados.size()];
+
+            for (int i = 0; i < horarios.length; i++) {
+                Users actual = horariosEncontrados.get(i);
+
+                horarios[i] = actual.getNombre();
+            }
+
+            tx.commit();
+        } catch (Exception ex) {
+            if (tx != null) {
+                tx.rollback();
+            }
+            ex.printStackTrace();
+        }
+
+        return horarios;
+    }
 }

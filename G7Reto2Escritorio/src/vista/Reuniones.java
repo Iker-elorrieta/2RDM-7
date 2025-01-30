@@ -21,7 +21,7 @@ public class Reuniones extends JPanel {
 		
 		JLabel lblNewLabel = new JLabel("REUNIONES");
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		lblNewLabel.setBounds(0, 3, 450, 14);
+		lblNewLabel.setBounds(0, 3, 700, 14);
 		add(lblNewLabel);
 	}
 

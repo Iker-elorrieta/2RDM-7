@@ -13,7 +13,6 @@ import java.io.ObjectInputStream;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import controlador.InterfazControl;
 import controlador.Metodos;
 import modelo.Conexion;
 
@@ -29,7 +28,6 @@ public class Principal extends JFrame {
 	}
 
 	private Metodos metodos = new Metodos();
-	private InterfazControl interfaz = new InterfazControl();
 	
 	private JPanel panelContenedor;
 	private Login login;
@@ -59,8 +57,8 @@ public class Principal extends JFrame {
                 }
             }
         });
-		
-		interfaz.CrearInputStream();
+
+		metodos.CrearInputStream();
 	}
 
 	private void crearPanelContenedor() {
@@ -111,7 +109,7 @@ public class Principal extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				visualizarPaneles(enumAcciones.PANEL_HORARIO);
 				
-				horario.setHorarios(interfaz.ObtenerHorarios());
+				horario.setHorarios(metodos.ObtenerHorarios());
 			}
 		});
 
@@ -121,7 +119,7 @@ public class Principal extends JFrame {
 				visualizarPaneles(enumAcciones.PANEL_OTROS);
 				otros.getTablaPanel().setVisible(false);
 
-				otros.setProfesores(interfaz.ObtenerProfesores());
+				otros.setProfesores(metodos.ObtenerProfesores());
 			}
 		});
 
@@ -160,7 +158,7 @@ public class Principal extends JFrame {
 		
 		otros.getProfesorCombo().addActionListener (new ActionListener () {
 		    public void actionPerformed(ActionEvent e) {
-				otros.setHorarios(interfaz.ObtenerOtrosHorarios(otros.profesores, otros.getProfesorCombo()));
+				otros.setHorarios(metodos.ObtenerOtrosHorarios(otros.profesores, otros.getProfesorCombo()));
 				otros.getTablaPanel().setVisible(true);
 		    }
 		});

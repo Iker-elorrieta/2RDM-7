@@ -7,6 +7,7 @@ import java.awt.Rectangle;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.text.Normalizer;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -14,6 +15,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -27,6 +29,19 @@ public class Metodos {
 	
 	private final String mensajeDesconectar = "DESCONECTAR";
 	private final String mensajeLogout = "LOGOUT";
+	private final String mensajeHorario = "HORARIO";
+	private final String mensajeProfesores = "PROFESORES";
+	private final String mensajeOtros = "OTROS";
+	
+	private ObjectInputStream oinput;
+	
+	public void CrearInputStream() {
+		try {
+			oinput = new ObjectInputStream(Conexion.conexion.getInputStream());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	public boolean Login(JTextField campoUsuario, JTextField campoClave, JLabel errorLabel) {
 		String usuario = campoUsuario.getText().toString();
@@ -44,11 +59,18 @@ public class Metodos {
 				output.writeUTF(clave);
 				
 				boolean respuesta = input.readBoolean();
-				//System.out.println("recieved: " + String.valueOf(respuesta));
+				System.out.println("recieved: " + String.valueOf(respuesta));
 				
-				if (!respuesta) errorLabel.setText("credenciales invalidas");
+				if (respuesta) {
+					if (oinput != null) {
+						Object[] datos = (Object[]) oinput.readObject();
+						System.out.println(datos.length);
+					}
+				} else
+					errorLabel.setText("credenciales invalidas");
+				
 				return respuesta;
-			} catch(Exception ioe) { errorLabel.setText("no se pudo iniciar sesion"); }
+			} catch(Exception ioe) { errorLabel.setText("no se pudo iniciar sesion"); ioe.printStackTrace(); }
 		}
 		return false;
 	}
@@ -144,5 +166,50 @@ public class Metodos {
         	return "<html>"+resultado.substring(1)+"</html>";
     	}
 		return null;
+	}
+	
+	public String[] ObtenerHorarios() {
+		String[] array = new String[0];
+		try {
+            DataOutputStream output = new DataOutputStream(Conexion.conexion.getOutputStream());
+            output.writeUTF(mensajeHorario);
+            output.flush();
+
+            if (oinput != null) array = (String[]) oinput.readObject();
+        } catch (IOException | ClassNotFoundException ioe) {
+        	ioe.printStackTrace();
+        }
+		return array;
+	}
+	
+	public String[] ObtenerProfesores() {
+		String[] array = new String[0];
+		try {
+            DataOutputStream output = new DataOutputStream(Conexion.conexion.getOutputStream());
+            output.writeUTF(mensajeProfesores);
+            output.flush();
+
+            if (oinput != null) array = (String[]) oinput.readObject();
+        } catch (IOException | ClassNotFoundException ioe) {
+        	ioe.printStackTrace();
+        }
+		return array;
+	}
+	
+	public String[] ObtenerOtrosHorarios(int[] profesores, JComboBox<String> combo) {
+		String[] array = new String[0];
+		try {
+            DataOutputStream output = new DataOutputStream(Conexion.conexion.getOutputStream());
+            output.writeUTF(mensajeOtros);
+            output.flush();
+            
+            output.writeInt(profesores[combo.getSelectedIndex()]);
+            output.flush();
+
+            if (oinput != null) array = (String[]) oinput.readObject();
+        } catch (IOException | ClassNotFoundException ioe) {
+        	ioe.printStackTrace();
+        }
+		return array;
 	}
 }
