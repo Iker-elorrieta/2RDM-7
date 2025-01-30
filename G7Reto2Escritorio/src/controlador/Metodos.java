@@ -61,8 +61,9 @@ public class Metodos {
 				System.out.println("recieved: " + String.valueOf(respuesta));
 				
 				if (respuesta) {
-					Object[] datos;
+					Object[] datos = new Object[0];
 					if (oinput != null) datos = (Object[]) oinput.readObject();
+					System.out.println(datos.length);
 				} else
 					errorLabel.setText("credenciales invalidas");
 				
@@ -89,7 +90,8 @@ public class Metodos {
         Conexion.conexion.close();
 	}
 	
-	public String[][] AplicarHorarios(DefaultTableModel modelo, String[] horarios) {
+	public String[][] AplicarHorarios(DefaultTableModel modelo, Object[][] horarios) {
+		// pasar esto de object bidimensional array al formato de horario
 		String[][] horariosCompleto = new String[modelo.getRowCount()][modelo.getColumnCount()];
 		for (int c = 1; c < modelo.getColumnCount(); c++) {
 			for (int r = 0; r < modelo.getRowCount(); r++) {
@@ -98,11 +100,9 @@ public class Metodos {
 			}
 		}
 		for (int i = 0; i < horarios.length; i++) {
-			String[] split = horarios[i].split(",");
-			
-			int hora = Integer.parseInt(split[1]);
+			int hora = Integer.parseInt((String) horarios[i][1]);
 			int dia = -1;
-			switch (split[2].charAt(0)) {
+			switch (((String) horarios[i][2]).charAt(0)) {
 				case 'L': dia = 0; break;
 				case 'M': dia = 1; break;
 				case 'X': dia = 2; break;
@@ -110,8 +110,8 @@ public class Metodos {
 				case 'V': dia = 4; break;
 			}
 			if (dia != -1) {
-				horariosCompleto[hora][dia + 1] = split[0];
-		        modelo.setValueAt(split[0], hora, dia + 1);
+				horariosCompleto[hora][dia + 1] = (String) horarios[i][0];
+		        modelo.setValueAt(horarios[i][0], hora, dia + 1);
 			}
 		}
 		return horariosCompleto;
@@ -165,36 +165,36 @@ public class Metodos {
 		return null;
 	}
 	
-	public String[] ObtenerHorarios() {
-		String[] array = new String[0];
+	public Object[][] ObtenerHorarios() {
+		Object[][] array = new Object[0][0];
 		try {
             DataOutputStream output = new DataOutputStream(Conexion.conexion.getOutputStream());
             output.writeUTF(mensajeHorario);
             output.flush();
 
-            if (oinput != null) array = (String[]) oinput.readObject();
+            if (oinput != null) array = (Object[][]) oinput.readObject();
         } catch (IOException | ClassNotFoundException ioe) {
         	ioe.printStackTrace();
         }
 		return array;
 	}
 	
-	public String[] ObtenerProfesores() {
-		String[] array = new String[0];
+	public Object[][] ObtenerProfesores() {
+		Object[][] array = new Object[0][0];
 		try {
             DataOutputStream output = new DataOutputStream(Conexion.conexion.getOutputStream());
             output.writeUTF(mensajeProfesores);
             output.flush();
 
-            if (oinput != null) array = (String[]) oinput.readObject();
+            if (oinput != null) array = (Object[][]) oinput.readObject();
         } catch (IOException | ClassNotFoundException ioe) {
         	ioe.printStackTrace();
         }
 		return array;
 	}
 	
-	public String[] ObtenerOtrosHorarios(int[] profesores, JComboBox<String> combo) {
-		String[] array = new String[0];
+	public Object[][] ObtenerOtrosHorarios(int[] profesores, JComboBox<String> combo) {
+		Object[][] array = new String[0][0];
 		try {
             DataOutputStream output = new DataOutputStream(Conexion.conexion.getOutputStream());
             output.writeUTF(mensajeOtros);
@@ -203,7 +203,7 @@ public class Metodos {
             output.writeInt(profesores[combo.getSelectedIndex()]);
             output.flush();
 
-            if (oinput != null) array = (String[]) oinput.readObject();
+            if (oinput != null) array = (Object[][]) oinput.readObject();
         } catch (IOException | ClassNotFoundException ioe) {
         	ioe.printStackTrace();
         }

@@ -6,8 +6,6 @@ import javax.swing.JTable;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
-import javax.swing.ToolTipManager;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
@@ -15,11 +13,8 @@ import controlador.Metodos;
 import modelo.CenterCellRenderer;
 
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 
 import java.awt.Component;
-import java.awt.Font;
-import java.awt.Rectangle;
 
 import javax.swing.DefaultComboBoxModel;
 
@@ -115,18 +110,17 @@ public class Otros extends JPanel {
 		return this.horarioPanel;
 	}
 	
-	public void setProfesores(String[] profesores) {
+	public void setProfesores(Object[][] profesores) {
 		this.profesores = new int[profesores.length];
 		String[] modeloArray = new String[profesores.length];
 		for (int i = 0; i < profesores.length; i++) {
-			String[] split = profesores[i].split(",");
-			modeloArray[i] = split[0];
-			this.profesores[i] = Integer.parseInt(split[1]);
+			modeloArray[i] = (String) profesores[i][0];
+			this.profesores[i] = (int) profesores[i][1];
 		}
 		profesorCombo.setModel(new DefaultComboBoxModel<String>(modeloArray));
 	}
 	
-	public void setHorarios(String[] horarios) {
+	public void setHorarios(Object[][] horarios) {
 		horariosCompleto = metodos.AplicarHorarios(modelo, horarios);
 	}
 }

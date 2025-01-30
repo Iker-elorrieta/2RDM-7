@@ -59,23 +59,23 @@ public class HiloServidor extends Thread {
 						conectado = false;
 						break;
 					case mensajeHorario:
-						String[] array = obtenerHorario(userId);
+						Object[][] array = obtenerHorario(userId);
 			            oos.writeObject(array);
 			            oos.flush();
 						break;
 					case mensajeProfesores:
-						String[] array1 = obtenerProfesores();
+						Object[][] array1 = obtenerProfesores();
 			            oos.writeObject(array1);
 			            oos.flush();
 						break;
 					case mensajeOtros:
 						int profe = dis.readInt();
-						String[] array2 = obtenerHorario(profe);
+						Object[][] array2 = obtenerHorario(profe);
 			            oos.writeObject(array2);
 			            oos.flush();
 						break;
 					case mensajeHorarioAlum:
-	                    String[] array3 = obtenerHorarioAlumno(userId);
+	                    Object[][] array3 = obtenerHorarioAlumno(userId);
 	                    oos.writeObject(array3);
 	                    oos.flush();
 						break;
@@ -199,9 +199,9 @@ public class HiloServidor extends Thread {
 
 	}
 	
-	private String[] obtenerHorario(int profesorID) {
+	private Object[][] obtenerHorario(int profesorID) {
 		Transaction tx = null;
-		String[] horarios = new String[0];
+		Object[][] horarios = new Object[0][0];
 
 		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
 			tx = session.beginTransaction();
@@ -211,12 +211,14 @@ public class HiloServidor extends Thread {
 			query.setParameter("profesor", profesorID);
 
 			List<Horarios> horariosEncontrados = query.list();
-			horarios = new String[horariosEncontrados.size()];
+			horarios = new Object[horariosEncontrados.size()][3];
 			
 			for (int i = 0; i < horarios.length; i++) {
 				Horarios actual = horariosEncontrados.get(i);
 				
-				horarios[i] = actual.getModulos().getNombre()+","+actual.getId().getHora()+","+actual.getId().getDia();
+				horarios[i][0] = actual.getModulos().getNombre();
+				horarios[i][1] = actual.getId().getHora();
+				horarios[i][2] = actual.getId().getDia();
 			}
 			
 			tx.commit();
@@ -230,9 +232,9 @@ public class HiloServidor extends Thread {
 		return horarios;
 	}
 	
-	private String[] obtenerProfesores() {
+	private Object[][] obtenerProfesores() {
 		Transaction tx = null;
-		ArrayList<String>profesores = new ArrayList<String>();
+		ArrayList<Users> profesores = new ArrayList<Users>();
 
 		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
 			tx = session.beginTransaction();
@@ -244,8 +246,7 @@ public class HiloServidor extends Thread {
 			
 			for (int i = 0; i < usuarios.size(); i++) {
 				Users actual = usuarios.get(i);
-				
-				profesores.add(actual.getNombre()+" "+actual.getApellidos()+","+actual.getId());
+				profesores.add(actual);
 			}
 			
 			tx.commit();
@@ -255,13 +256,20 @@ public class HiloServidor extends Thread {
 			}
 			ex.printStackTrace();
 		}
+		
+		Object[][] result = new Object[profesores.size()][2];
+		for (int i = 0; i < profesores.size(); i++) {
+			Users actual = profesores.get(i);
+			result[i][0] = actual.getNombre()+" "+actual.getApellidos();
+			result[i][1] = actual.getId();
+		}
 
-		return profesores.toArray(new String[profesores.size()]);
+		return result;
 	}
 	
-	private String[] obtenerHorarioAlumno(int alumnoID) {
+	private Object[][] obtenerHorarioAlumno(int alumnoID) {
         Transaction tx = null;
-        String[] horarios = new String[0];
+        Object[][] horarios = new Object[0][0];
 
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
@@ -277,7 +285,7 @@ public class HiloServidor extends Thread {
 
         
             List<Object[]> horariosEncontrados = query.list();
-            horarios = new String[horariosEncontrados.size()];
+            horarios = new Object[horariosEncontrados.size()][3];
 
             
             for (int i = 0; i < horarios.length; i++) {
@@ -286,7 +294,9 @@ public class HiloServidor extends Thread {
                 Integer hora = (Integer) row[1];
                 Integer dia = (Integer) row[2];
 
-                horarios[i] = nombreModulo + "," + hora + "," + dia;
+                horarios[i][0] = nombreModulo;
+                horarios[i][1] = hora;
+                horarios[i][2] = dia;
             }
 
             tx.commit();
