@@ -124,6 +124,8 @@ public class Principal extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				visualizarPaneles(enumAcciones.PANEL_REUNIONES);
+
+				reuniones.setReuniones(metodos.ObtenerReuniones());
 			}
 		});
 	}

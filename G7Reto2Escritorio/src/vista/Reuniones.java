@@ -28,4 +28,12 @@ public class Reuniones extends JPanel {
 	public JButton getVolverBoton() {
 		return this.volverBoton;
 	}
+	
+	public void setReuniones(Object[][] reuniones) {
+		for (int x = 0; x < reuniones.length; x++) {
+			for (int y = 0; y < reuniones[x].length; y++) {
+				System.out.println(reuniones[x][y].toString());
+			}
+		}
+	}
 }

@@ -31,6 +31,7 @@ public class Metodos {
 	private final String mensajeHorario = "HORARIO";
 	private final String mensajeProfesores = "PROFESORES";
 	private final String mensajeOtros = "OTROS";
+	private final String mensajeReuniones = "REUNIONES";
 	
 	private ObjectInputStream oinput;
 	
@@ -56,6 +57,7 @@ public class Metodos {
 				
 				output.writeUTF(usuario);
 				output.writeUTF(clave);
+				output.writeBoolean(false);
 				
 				boolean respuesta = input.readBoolean();
 				System.out.println("recieved: " + String.valueOf(respuesta));
@@ -201,6 +203,20 @@ public class Metodos {
             output.flush();
             
             output.writeInt(profesores[combo.getSelectedIndex()]);
+            output.flush();
+
+            if (oinput != null) array = (Object[][]) oinput.readObject();
+        } catch (IOException | ClassNotFoundException ioe) {
+        	ioe.printStackTrace();
+        }
+		return array;
+	}
+	
+	public Object[][] ObtenerReuniones() {
+		Object[][] array = new Object[0][0];
+		try {
+            DataOutputStream output = new DataOutputStream(Conexion.conexion.getOutputStream());
+            output.writeUTF(mensajeReuniones);
             output.flush();
 
             if (oinput != null) array = (Object[][]) oinput.readObject();

@@ -14,6 +14,7 @@ import org.hibernate.Transaction;
 
 import leeryescribirBD.HibernateUtil;
 import modelo.Horarios;
+import modelo.Reuniones;
 import modelo.Users;
 
 public class HiloServidor extends Thread {
@@ -26,6 +27,7 @@ public class HiloServidor extends Thread {
 	private final String mensajeHorario = "HORARIO";
 	private final String mensajeProfesores = "PROFESORES";
 	private final String mensajeOtros = "OTROS";
+	private final String mensajeReuniones = "REUNIONES";
 	private final String mensajeHorarioAlum = "HORARIOALUMNO";
 	private final String mensajeListaAlum = "LISTAALUMNOS";
 
@@ -74,14 +76,19 @@ public class HiloServidor extends Thread {
 			            oos.writeObject(array2);
 			            oos.flush();
 						break;
+					case mensajeReuniones:
+						Object[][] array3 = obtenerReuniones(userId);
+			            oos.writeObject(array3);
+			            oos.flush();
+						break;
 					case mensajeHorarioAlum:
-	                    Object[][] array3 = obtenerHorarioAlumno(userId);
-	                    oos.writeObject(array3);
+	                    Object[][] array4 = obtenerHorarioAlumno(userId);
+	                    oos.writeObject(array4);
 	                    oos.flush();
 						break;
 					case mensajeListaAlum:
-	                    String[] array4 = obtenerListaAlumnos();
-	                    oos.writeObject(array4);
+	                    String[] array5 = obtenerListaAlumnos();
+	                    oos.writeObject(array5);
 	                    oos.flush();
 						break;
 				}
@@ -99,14 +106,15 @@ public class HiloServidor extends Thread {
 		}
 	}
 
-	private modelo.Users comprobarUsuario(String usuario, String contrasena) {
+	private modelo.Users comprobarUsuario(String usuario, String contrasena, boolean android) {
 		Transaction tx = null;
 		modelo.Users usuarioEncontrado = null;
 
 		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
 			tx = session.beginTransaction();
 
-			String hql = "FROM Users WHERE username = :username AND password = :password AND (tipos.name='profesor' OR tipos.name='administrador' OR tipos.name='god')";
+			String hql = "FROM Users WHERE username = :username AND password = :password";
+			if (!android) hql += " AND (tipos.name='profesor' OR tipos.name='administrador' OR tipos.name='god')";
 			Query query = session.createQuery(hql);
 			query.setParameter("username", usuario);
 			query.setParameter("password", contrasena);
@@ -143,8 +151,9 @@ public class HiloServidor extends Thread {
                 System.out.println("Cliente " + clienteId + " - Usuario: " + usuario);
 
                 String contrasena = dis.readUTF();
-                System.out.println("Cliente " + clienteId + " - Contraseña: " + contrasena);
-                Users usuario1= comprobarUsuario(usuario, contrasena);
+                boolean esAndroid = dis.readBoolean();
+                System.out.println("Cliente (" + (esAndroid ? "android" : "java") + ") " + clienteId + " - Contraseña: " + contrasena);
+                Users usuario1= comprobarUsuario(usuario, contrasena, esAndroid);
                 autenticado = usuario1 != null;
 
                 System.out.println(autenticado);
@@ -230,6 +239,44 @@ public class HiloServidor extends Thread {
 		}
 
 		return horarios;
+	}
+
+	private Object[][] obtenerReuniones(int profesorID) {
+		Transaction tx = null;
+		Object[][] reuniones = new Object[0][0];
+
+		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+			tx = session.beginTransaction();
+
+			String hql = "FROM Reuniones WHERE profesor_id = :profesor";
+			Query query = session.createQuery(hql);
+			query.setParameter("profesor", profesorID);
+
+			List<Reuniones> reunionesEncontradas = query.list();
+			reuniones = new Object[reunionesEncontradas.size()][7];
+			
+			for (int i = 0; i < reuniones.length; i++) {
+				Reuniones actual = reunionesEncontradas.get(i);
+				
+				reuniones[i][0] = actual.getEstado();
+				reuniones[i][1] = actual.getTitulo();
+				reuniones[i][2] = actual.getAsunto();
+				reuniones[i][3] = actual.getFecha();
+				reuniones[i][4] = actual.getIdCentro();
+				reuniones[i][5] = actual.getAula();
+				Users alumno = actual.getUsersByAlumnoId();
+				reuniones[i][6] = alumno.getNombre() + " " + alumno.getApellidos();
+			}
+			
+			tx.commit();
+		} catch (Exception ex) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			ex.printStackTrace();
+		}
+
+		return reuniones;
 	}
 	
 	private Object[][] obtenerProfesores() {

@@ -2,14 +2,52 @@ package controlador;
 
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Map;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import modelo.Centro;
+
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 
 public class Servidor {
 
+	private static final String url = "json/Centros-Lat-Lon.json";
+	
 	public static void main(String[] args) {
 		int id = 1; 
 		ServerSocket serverSocket = null;
 
+		JsonParser parser = new JsonParser();
+		try {
+			FileReader fr = new FileReader(url);
+			JsonElement datos = parser.parse(fr);
+			JsonObject objetoRaiz = datos.getAsJsonObject();
+			JsonArray array = objetoRaiz.getAsJsonArray("CENTROS");
+
+			for (JsonElement elemento : array) {
+				JsonObject objeto = elemento.getAsJsonObject();
+				
+				Centro centro = new Centro(objeto.get("CCEN").getAsInt());
+				System.out.println(centro.getId());
+				
+				/*System.out.println("Centro:");
+				for (Map.Entry<String, JsonElement> entry : objeto.entrySet()) {
+					
+					System.out.println("\t" + entry.getKey() + ": " + entry.getValue().getAsString());
+				}
+				System.out.println();*/
+			}
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
 		try {
 			serverSocket = new ServerSocket(3000);
 			System.out.println("Servidor iniciado...");
