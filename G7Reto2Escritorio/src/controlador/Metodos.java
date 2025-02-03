@@ -1,5 +1,6 @@
 package controlador;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -8,8 +9,11 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.sql.Timestamp;
 import java.text.Normalizer;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -93,7 +97,6 @@ public class Metodos {
 	}
 	
 	public String[][] AplicarHorarios(DefaultTableModel modelo, Object[][] horarios) {
-		// pasar esto de object bidimensional array al formato de horario
 		String[][] horariosCompleto = new String[modelo.getRowCount()][modelo.getColumnCount()];
 		for (int c = 1; c < modelo.getColumnCount(); c++) {
 			for (int r = 0; r < modelo.getRowCount(); r++) {
@@ -119,17 +122,72 @@ public class Metodos {
 		return horariosCompleto;
 	}
 	
-	public void PrepararRenderer(JTable tabla, Component c, String[][] horariosComepleto, TableCellRenderer renderer, int row, int column) {
+	public Object[][][] AplicarReuniones(DefaultTableModel modelo, Object[][] reuniones) {
+		Object[][][] reunionesCompleto = new String[modelo.getRowCount()][modelo.getColumnCount()][7];
+		for (int c = 1; c < modelo.getColumnCount(); c++) {
+			for (int r = 0; r < modelo.getRowCount(); r++) {
+				modelo.setValueAt(null, r, c);
+				for (int x = 0; x < reunionesCompleto[r][c].length; x++) {
+					reunionesCompleto[r][c][x] = null;
+				}
+			}
+		}
+
+		Calendar c = Calendar.getInstance();
+		for (int x = 0; x < reuniones.length; x++) {
+			for (int y = 0; y < reuniones[x].length; y++) {
+				System.out.println(y+": "+reuniones[x][y].toString());
+			}
+			Calendar fecha = (Calendar) c.clone();
+			fecha.setTime((Timestamp) reuniones[x][3]);
+			int hora = Math.clamp(fecha.get(Calendar.HOUR_OF_DAY) - 8, 0, 5);
+			int dia = Math.clamp(fecha.get(Calendar.DAY_OF_WEEK), 1, 5);
+			for (int y = 0; y < reuniones[x].length; y++) {
+				if (reuniones[x][y].getClass() == Timestamp.class)
+					reunionesCompleto[hora][dia][y] = reuniones[x][y].toString();
+				else reunionesCompleto[hora][dia][y] = reuniones[x][y];
+			}
+			modelo.setValueAt((String) reuniones[x][1], hora, dia);
+		}
+
+		return reunionesCompleto;
+	}
+	
+	public void PrepararRenderer(JTable tabla, Component c, Object[][] completo, TableCellRenderer renderer, int row, int column) {
         if (c instanceof JComponent) {
             JComponent jc = (JComponent) c;
             Object val = tabla.getValueAt(row, column);
             if (val != null) {
-            	String completo = horariosComepleto[row][column];
-            	if (completo != null) {
+            	String comp = (String) completo[row][column];
+            	if (comp != null) {
             		Rectangle rect = tabla.getCellRect(row, column, true);
-            		String result = WarpString(completo, val, jc, (int) rect.getWidth(), (int) rect.getHeight());
+            		String result = WarpString(comp, val, jc, (int) rect.getWidth(), (int) rect.getHeight());
             		if (result != null)
             			tabla.setValueAt(result, row, column);
+            	}
+            }
+        }
+	}
+	
+	public void PrepararRendererReuniones(JTable tabla, Component c, Object[][][] completo, TableCellRenderer renderer, int row, int column) {
+        if (c instanceof JComponent) {
+            JComponent jc = (JComponent) c;
+            Object val = tabla.getValueAt(row, column);
+			jc.setBackground(Color.white);
+            if (val != null) {
+            	String comp = (String) completo[row][column][1];
+            	if (comp != null) {
+            		Rectangle rect = tabla.getCellRect(row, column, true);
+            		String result = WarpString(comp, val, jc, (int) rect.getWidth(), (int) rect.getHeight());
+            		if (result != null)
+            			tabla.setValueAt(result, row, column);
+            		
+            		switch ((String) completo[row][column][0]) {
+	            		case "pendiente": jc.setBackground(Color.orange); break;
+	            		case "conflicto": jc.setBackground(Color.gray); break;
+	            		case "aceptada": jc.setBackground(Color.green); break;
+	            		case "denegada": jc.setBackground(Color.red); break;
+            		}
             	}
             }
         }

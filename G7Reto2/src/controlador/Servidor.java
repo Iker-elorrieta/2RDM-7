@@ -34,7 +34,7 @@ public class Servidor {
 				JsonObject objeto = elemento.getAsJsonObject();
 				
 				Centro centro = new Centro(objeto.get("CCEN").getAsInt());
-				System.out.println(centro.getId());
+				System.out.print(centro.getId() + " ");
 				
 				/*System.out.println("Centro:");
 				for (Map.Entry<String, JsonElement> entry : objeto.entrySet()) {
@@ -43,6 +43,7 @@ public class Servidor {
 				}
 				System.out.println();*/
 			}
+			System.out.println();
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

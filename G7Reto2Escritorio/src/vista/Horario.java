@@ -28,12 +28,12 @@ public class Horario extends JPanel {
 	private String[][] horariosCompleto = new String[6][6];
 	private DefaultTableModel modelo = new DefaultTableModel(
 			new Object[][] {
-				{"1", null, null, null, null, null},
-				{"2", null, null, null, null, null},
-				{"3", null, null, null, null, null},
-				{"4", null, null, null, null, null},
-				{"5", null, null, null, null, null},
-				{"6", null, null, null, null, null},
+				{"8:00", null, null, null, null, null},
+				{"9:00", null, null, null, null, null},
+				{"10:00", null, null, null, null, null},
+				{"11:00", null, null, null, null, null},
+				{"12:00", null, null, null, null, null},
+				{"13:00", null, null, null, null, null},
 			},
 			new String[] {
 				"Horas", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes"
