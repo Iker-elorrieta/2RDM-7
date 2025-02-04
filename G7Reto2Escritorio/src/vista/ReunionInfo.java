@@ -1,29 +1,31 @@
 package vista;
 
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-
-import java.awt.Component;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 
 import controlador.Metodos;
-import modelo.CenterCellRenderer;
-import modelo.TablaNoEditable;
 import java.awt.Font;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class ReunionInfo extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
 	private JButton volverBoton;
-
-	private Metodos metodos = new Metodos();
+	
+	private JLabel tituloLabel;
+	private JLabel estadoLabel;
+	private JLabel personasLabel;
+	private JLabel lugarLabel;
+	private JLabel asuntoLabel;
+	private JLabel fechaLabel;
+	
+	Metodos metodos = new Metodos();
 	
 	public ReunionInfo() {
 		setBounds(0, 0, 700, 380);
@@ -38,36 +40,36 @@ public class ReunionInfo extends JPanel {
 		lblNewLabel.setBounds(0, 0, 700, 14);
 		add(lblNewLabel);
 		
-		JLabel tituloLabel = new JLabel("Reunion?");
+		tituloLabel = new JLabel("Reunion?");
 		tituloLabel.setFont(new Font("Tahoma", Font.PLAIN, 24));
 		tituloLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		tituloLabel.setBounds(0, 43, 700, 29);
 		add(tituloLabel);
 		
-		JLabel estadoLabel = new JLabel("estado?");
+		estadoLabel = new JLabel("estado?");
 		estadoLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		estadoLabel.setBounds(0, 103, 700, 14);
 		add(estadoLabel);
 		
-		JLabel personasLabel = new JLabel("alumno? ha solicitado una reunion\r\ncon el profesor profesor?");
+		personasLabel = new JLabel("alumno? ha solicitado una reunion\r\ncon el profesor profesor?");
 		personasLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		personasLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		personasLabel.setBounds(0, 203, 700, 56);
 		add(personasLabel);
 		
-		JLabel lugarLabel = new JLabel("reunion en centro? en el aula aula?");
+		lugarLabel = new JLabel("reunion en centro? en el aula aula?");
 		lugarLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		lugarLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		lugarLabel.setBounds(0, 284, 700, 34);
 		add(lugarLabel);
 		
-		JLabel asuntoLabel = new JLabel("asunto?");
+		asuntoLabel = new JLabel("asunto?");
 		asuntoLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		asuntoLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		asuntoLabel.setBounds(0, 73, 700, 29);
 		add(asuntoLabel);
 		
-		JLabel fechaLabel = new JLabel("fecha de reunion: fecha?");
+		fechaLabel = new JLabel("fecha de reunion: fecha?");
 		fechaLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		fechaLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		fechaLabel.setBounds(0, 145, 700, 34);
@@ -79,6 +81,11 @@ public class ReunionInfo extends JPanel {
 	}
 	
 	public void setReunion(Object[] reunion) {
-		
+		tituloLabel.setText((String) reunion[1]);
+		estadoLabel.setText(metodos.primeraMayus((String) reunion[0]));
+		asuntoLabel.setText((String) reunion[2]);
+		personasLabel.setText(String.format("<html>%s ha solicitado una reunion</br>con el profesor %s", metodos.primeraMayus((String) reunion[6]), metodos.primeraMayus((String) reunion[7])));
+		lugarLabel.setText(String.format("Reunion en %s en el aula %s", reunion[4], reunion[5]));
+		fechaLabel.setText(String.format("Fecha de reunion: %s", (String) reunion[3]));
 	}
 }

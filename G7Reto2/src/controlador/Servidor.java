@@ -2,6 +2,7 @@ package controlador;
 
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gson.JsonArray;
@@ -22,6 +23,8 @@ public class Servidor {
 	public static void main(String[] args) {
 		int id = 1; 
 		ServerSocket serverSocket = null;
+		
+		HashMap<Integer, String> centros = new HashMap<Integer, String>();
 
 		JsonParser parser = new JsonParser();
 		try {
@@ -33,8 +36,7 @@ public class Servidor {
 			for (JsonElement elemento : array) {
 				JsonObject objeto = elemento.getAsJsonObject();
 				
-				Centro centro = new Centro(objeto.get("CCEN").getAsInt());
-				System.out.print(centro.getId() + " ");
+				centros.put(objeto.get("CCEN").getAsInt(), objeto.get("NOM").getAsString());
 				
 				/*System.out.println("Centro:");
 				for (Map.Entry<String, JsonElement> entry : objeto.entrySet()) {
@@ -43,7 +45,6 @@ public class Servidor {
 				}
 				System.out.println();*/
 			}
-			System.out.println();
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -58,7 +59,7 @@ public class Servidor {
 				System.out.println("=>Cliente conectado: " + id);
 				System.out.println("Dirección IP: " + cliente.getInetAddress());
 
-				HiloServidor clienteThread = new HiloServidor(cliente, id);
+				HiloServidor clienteThread = new HiloServidor(cliente, id, centros);
 				clienteThread.start();
 
 				id++;

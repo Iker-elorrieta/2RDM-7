@@ -21,7 +21,8 @@ public class Principal extends JFrame {
 		PANEL_MENU,
 		PANEL_HORARIO,
 		PANEL_OTROS,
-		PANEL_REUNIONES
+		PANEL_REUNIONES,
+		PANEL_INFO_REUNION
 	}
 
 	private Metodos metodos = new Metodos();
@@ -32,6 +33,7 @@ public class Principal extends JFrame {
 	private Horario horario;
 	private Otros otros;
 	private Reuniones reuniones;
+	private ReunionInfo reunionInfo;
 	
 	public Principal() {
 		crearPanelContenedor();
@@ -40,7 +42,8 @@ public class Principal extends JFrame {
 		crearPanelHorario();
 		crearPanelOtros();
 		crearPanelReuniones();
-
+		crearPanelReunionInfo();
+		
 		visualizarPaneles(enumAcciones.PANEL_LOGIN);
 		
 		addWindowListener(new WindowAdapter() {
@@ -174,6 +177,36 @@ public class Principal extends JFrame {
 				visualizarPaneles(enumAcciones.PANEL_MENU);
 			}
 		});
+		
+		reuniones.getTabla().addMouseListener(new MouseAdapter() {
+		    @Override
+		    public void mouseClicked(MouseEvent evt) {
+		    	int row = -1, col = -1;
+		        row = reuniones.getTabla().getSelectedRow();
+		        col = reuniones.getTabla().getSelectedColumn();
+		        
+		        if (evt.getClickCount() == 2 && row != -1 && col != -1) {
+		        	Object value = reuniones.getTabla().getValueAt(row, col);
+		        	if (value != null) {
+		        		reunionInfo.setReunion(reuniones.obtenerDatosReunion(row, col));		        		
+						visualizarPaneles(enumAcciones.PANEL_INFO_REUNION);
+		        	}
+		        }
+		    }
+		});
+	}
+	
+	private void crearPanelReunionInfo() {
+		reunionInfo = new ReunionInfo();
+		panelContenedor.add(reunionInfo);
+		reunionInfo.setVisible(false);
+
+		reunionInfo.getVolverBoton().addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				visualizarPaneles(enumAcciones.PANEL_REUNIONES);
+			}
+		});
 	}
 
 	public void visualizarPaneles(enumAcciones panel) {
@@ -182,6 +215,7 @@ public class Principal extends JFrame {
 		horario.setVisible(false);
 		otros.setVisible(false);
 		reuniones.setVisible(false);
+		reunionInfo.setVisible(false);
 
 		switch (panel) {
 		case PANEL_LOGIN:
@@ -198,6 +232,9 @@ public class Principal extends JFrame {
 			break;
 		case PANEL_REUNIONES:
 			reuniones.setVisible(true);
+			break;
+		case PANEL_INFO_REUNION:
+			reunionInfo.setVisible(true);
 			break;
 		default:
 			break;
@@ -222,6 +259,10 @@ public class Principal extends JFrame {
 	}
 	
 	public Reuniones getPanelReuniones() {
+		return reuniones;
+	}
+
+	public Reuniones getPanelReunionInfo() {
 		return reuniones;
 	}
 }

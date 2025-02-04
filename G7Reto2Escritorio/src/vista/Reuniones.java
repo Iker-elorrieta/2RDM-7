@@ -25,7 +25,7 @@ public class Reuniones extends JPanel {
 
 	private Metodos metodos = new Metodos();
 	
-	private Object[][][] reunionesCompleto = new Object[6][6][7];
+	private Object[][][] reunionesCompleto = new Object[6][6][8];
 	private DefaultTableModel modelo = new TablaNoEditable(
 			new Object[][] {
 				{"8:00", null, null, null, null, null},
@@ -78,22 +78,6 @@ public class Reuniones extends JPanel {
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		lblNewLabel.setBounds(0, 0, 700, 14);
 		add(lblNewLabel);
-		
-		table.addMouseListener(new java.awt.event.MouseAdapter() {
-		    @Override
-		    public void mouseClicked(java.awt.event.MouseEvent evt) {
-		    	int row = -1, col = -1;
-		        row = table.getSelectedRow();
-		        col = table.getSelectedColumn();
-		        
-		        if (evt.getClickCount() > 1 && row != -1 && col != -1) {
-		        	Object value = table.getValueAt(row, col);
-		        	if (value != null) {
-		        		// mostrar info reunion
-		        	}
-		        }
-		    }
-		});
 
 		CenterCellRenderer renderer = new CenterCellRenderer();
 		for (int col = 0; col < table.getColumnCount(); col++) {
@@ -108,6 +92,14 @@ public class Reuniones extends JPanel {
 
 	public JButton getVolverBoton() {
 		return this.volverBoton;
+	}
+	
+	public JTable getTabla() {
+		return this.table;
+	}
+	
+	public Object[] obtenerDatosReunion(int row, int col) {
+		return this.reunionesCompleto[row][col];
 	}
 	
 	public void setReuniones(Object[][] reuniones) {

@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.sql.Timestamp;
 import java.text.Normalizer;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -119,7 +120,7 @@ public class Metodos {
 	}
 	
 	public Object[][][] AplicarReuniones(DefaultTableModel modelo, Object[][] reuniones) {
-		Object[][][] reunionesCompleto = new String[modelo.getRowCount()][modelo.getColumnCount()][7];
+		Object[][][] reunionesCompleto = new String[modelo.getRowCount()][modelo.getColumnCount()][8];
 		for (int c = 1; c < modelo.getColumnCount(); c++) {
 			for (int r = 0; r < modelo.getRowCount(); r++) {
 				modelo.setValueAt(null, r, c);
@@ -140,7 +141,7 @@ public class Metodos {
 			int dia = Math.clamp(fecha.get(Calendar.DAY_OF_WEEK), 1, 5);
 			for (int y = 0; y < reuniones[x].length; y++) {
 				if (reuniones[x][y].getClass() == Timestamp.class)
-					reunionesCompleto[hora][dia][y] = reuniones[x][y].toString();
+					reunionesCompleto[hora][dia][y] = (String) new SimpleDateFormat("yyyy/MM/dd - hh:mm").format(reuniones[x][y]);
 				else reunionesCompleto[hora][dia][y] = reuniones[x][y];
 			}
 			modelo.setValueAt((String) reuniones[x][1], hora, dia);
@@ -278,5 +279,17 @@ public class Metodos {
         	ioe.printStackTrace();
         }
 		return array;
+	}
+	
+	public String primeraMayus(String texto) {
+		if (texto == null || texto.isEmpty()) return texto;
+        String[] palabras = texto.split(" ");
+        StringBuilder builder = new StringBuilder();
+        for (String palabra : palabras) {
+            if (!palabra.isEmpty()) {
+                builder.append(Character.toUpperCase(palabra.charAt(0))).append(palabra.substring(1)).append(" ");
+            }
+        }
+        return builder.toString().trim();
 	}
 }

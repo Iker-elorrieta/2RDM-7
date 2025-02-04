@@ -2,6 +2,7 @@ package controlador;
 
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -21,6 +22,7 @@ public class HiloServidor extends Thread {
 	private Socket cliente;
 	private int clienteId;
 	private int userId;
+	private String[] infoUsuario = new String[3];
 	
 	private final String mensajeLogout = "LOGOUT";
 	private final String mensajeDesconectar= "DESCONECTAR";
@@ -31,10 +33,13 @@ public class HiloServidor extends Thread {
 	private final String mensajeHorarioAlum = "HORARIOALUMNO";
 	private final String mensajeListaAlum = "LISTAALUMNOS";
 	private final String mensajeReunionesAlum = "REUNIONESALUMNO";
-
-	public HiloServidor(Socket cliente, int clienteId) {
+	
+	private HashMap<Integer, String> centros = new HashMap<Integer, String>();
+	
+	public HiloServidor(Socket cliente, int clienteId, HashMap<Integer, String> centros) {
 		this.cliente = cliente;
 		this.clienteId = clienteId;
+		this.centros = centros;
 	}
 
 	@Override
@@ -129,6 +134,12 @@ public class HiloServidor extends Thread {
 			if (!listaUsuarios.isEmpty()) {
 				usuarioEncontrado = listaUsuarios.get(0);
 				this.userId = usuarioEncontrado.getId();
+				
+				this.infoUsuario = new String[] {
+					usuarioEncontrado.getUsername(),
+					usuarioEncontrado.getNombre(),
+					usuarioEncontrado.getApellidos()
+				};
 			}
 
 			tx.commit();
@@ -264,7 +275,7 @@ public class HiloServidor extends Thread {
 			query.setParameter("profesor", profesorID);
 
 			List<Reuniones> reunionesEncontradas = query.list();
-			reuniones = new Object[reunionesEncontradas.size()][7];
+			reuniones = new Object[reunionesEncontradas.size()][8];
 			
 			for (int i = 0; i < reuniones.length; i++) {
 				Reuniones actual = reunionesEncontradas.get(i);
@@ -273,10 +284,13 @@ public class HiloServidor extends Thread {
 				reuniones[i][1] = actual.getTitulo();
 				reuniones[i][2] = actual.getAsunto();
 				reuniones[i][3] = actual.getFecha();
-				reuniones[i][4] = actual.getIdCentro();
+				int key = Integer.parseInt(actual.getIdCentro());
+				if (centros.containsKey(key)) reuniones[i][4] = centros.get(key);
+				else reuniones[i][4] = "CENTRO DESCONOCIDO";
 				reuniones[i][5] = actual.getAula();
 				Users alumno = actual.getUsersByAlumnoId();
 				reuniones[i][6] = alumno.getNombre() + " " + alumno.getApellidos();
+				reuniones[i][7] = infoUsuario[1] + " " + infoUsuario[2];
 			}
 			
 			tx.commit();
