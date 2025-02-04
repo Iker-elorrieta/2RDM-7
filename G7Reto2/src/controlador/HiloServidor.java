@@ -173,7 +173,10 @@ public class HiloServidor extends Thread {
                     	usuario1.getDni()
                     };
                     oos.writeObject(datosUsuario);
-                    oos.flush(); 
+                    oos.flush();
+                    
+					dos.writeUTF(obtenerMatriculaciones(usuario1.getId()));
+                    dos.flush();
                 } else
                     System.out.println("Cliente " + clienteId + " falló el inicio de sesión. Intentando de nuevo...");
 
@@ -386,5 +389,31 @@ public class HiloServidor extends Thread {
         }
 
         return horarios;
+    }
+    
+    private String obtenerMatriculaciones(int userId) {
+        Transaction tx = null;
+        
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            tx = session.beginTransaction();
+            
+            
+            Query query = session.createQuery("SELECT c.nombre FROM Ciclos c JOIN c.matriculacioneses m JOIN m.users u WHERE u.id = :userId");
+            query.setParameter("userId", userId);
+            List<String> ciclos = query.list(); 
+            
+            if (ciclos.size() > 0)
+                
+                  return ciclos.get(0); 
+            
+            tx.commit();
+        } catch (Exception ex) {
+            if (tx != null) {
+                tx.rollback();
+            }
+            ex.printStackTrace();
+        }
+        System.out.println("Llega a return");
+        return "";
     }
 }
