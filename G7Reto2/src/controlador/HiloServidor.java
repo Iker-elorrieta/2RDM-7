@@ -33,6 +33,7 @@ public class HiloServidor extends Thread {
 	private final String mensajeHorarioAlum = "HORARIOALUMNO";
 	private final String mensajeListaAlum = "LISTAALUMNOS";
 	private final String mensajeReunionesAlum = "REUNIONESALUMNO";
+	private final String mensajeActuReunion = "ACTUALIZARREUNION";
 	
 	private HashMap<Integer, String> centros = new HashMap<Integer, String>();
 	
@@ -101,6 +102,11 @@ public class HiloServidor extends Thread {
                         Object[][] array6 = obtenerReunionesAlumno(userId);
                         oos.writeObject(array6);
                         oos.flush();
+                        break;
+					case mensajeActuReunion:
+						int id = dis.readInt();
+						String estado = dis.readUTF();
+						actualizarReunion(id, estado);
                         break;
 				}
 			}
@@ -275,7 +281,7 @@ public class HiloServidor extends Thread {
 			query.setParameter("profesor", profesorID);
 
 			List<Reuniones> reunionesEncontradas = query.list();
-			reuniones = new Object[reunionesEncontradas.size()][8];
+			reuniones = new Object[reunionesEncontradas.size()][9];
 			
 			for (int i = 0; i < reuniones.length; i++) {
 				Reuniones actual = reunionesEncontradas.get(i);
@@ -291,6 +297,7 @@ public class HiloServidor extends Thread {
 				Users alumno = actual.getUsersByAlumnoId();
 				reuniones[i][6] = alumno.getNombre() + " " + alumno.getApellidos();
 				reuniones[i][7] = infoUsuario[1] + " " + infoUsuario[2];
+				reuniones[i][8] = actual.getIdReunion().toString();
 			}
 			
 			tx.commit();
@@ -475,5 +482,30 @@ public class HiloServidor extends Thread {
         }
 
         return reuniones;
+    }
+    
+    private void actualizarReunion(int id, String estado) {
+    	Transaction tx = null;
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            tx = session.beginTransaction();
+
+            String hql = "FROM Reuniones WHERE id_reunion = :rid";
+            Query query = session.createQuery(hql);
+            query.setParameter("rid", id);
+
+            if (query.list().size() > 0) {
+                Reuniones reunion = (Reuniones) query.list().get(0);
+                reunion.setEstado(estado);
+    			session.save(reunion);
+            }
+			            
+            tx.commit();
+        } catch (Exception ex) {
+            if (tx != null) {
+                tx.rollback();
+            }
+            ex.printStackTrace();
+        }
     }
 }

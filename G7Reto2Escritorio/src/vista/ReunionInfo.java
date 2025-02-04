@@ -17,6 +17,8 @@ public class ReunionInfo extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	private JButton volverBoton;
+	private JButton aceptarBoton;
+	private JButton rechazarBoton;
 	
 	private JLabel tituloLabel;
 	private JLabel estadoLabel;
@@ -25,11 +27,21 @@ public class ReunionInfo extends JPanel {
 	private JLabel asuntoLabel;
 	private JLabel fechaLabel;
 	
+	private int id;
+	
 	Metodos metodos = new Metodos();
 	
 	public ReunionInfo() {
 		setBounds(0, 0, 700, 380);
 		setLayout(null);
+		
+		aceptarBoton = new JButton("Aceptar");
+		aceptarBoton.setBounds(264, 346, 87, 23);
+		add(aceptarBoton);
+		
+		rechazarBoton = new JButton("Rechar");
+		rechazarBoton.setBounds(361, 346, 87, 23);
+		add(rechazarBoton);
 		
 		volverBoton = new JButton("Volver");
 		volverBoton.setBounds(10, 11, 87, 23);
@@ -80,6 +92,18 @@ public class ReunionInfo extends JPanel {
 		return this.volverBoton;
 	}
 	
+	public JButton getRechazarBoton() {
+		return this.rechazarBoton;
+	}
+	
+	public JButton getAceptarBoton() {
+		return this.aceptarBoton;
+	}
+	
+	public int getId() {
+		return this.id;
+	}
+	
 	public void setReunion(Object[] reunion) {
 		tituloLabel.setText((String) reunion[1]);
 		estadoLabel.setText(metodos.primeraMayus((String) reunion[0]));
@@ -87,5 +111,6 @@ public class ReunionInfo extends JPanel {
 		personasLabel.setText(String.format("<html>%s ha solicitado una reunion</br>con el profesor %s", metodos.primeraMayus((String) reunion[6]), metodos.primeraMayus((String) reunion[7])));
 		lugarLabel.setText(String.format("Reunion en %s en el aula %s", reunion[4], reunion[5]));
 		fechaLabel.setText(String.format("Fecha de reunion: %s", (String) reunion[3]));
+		id = Integer.parseInt((String) reunion[8]);
 	}
 }

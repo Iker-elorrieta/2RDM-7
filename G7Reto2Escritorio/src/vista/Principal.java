@@ -185,7 +185,7 @@ public class Principal extends JFrame {
 		        row = reuniones.getTabla().getSelectedRow();
 		        col = reuniones.getTabla().getSelectedColumn();
 		        
-		        if (evt.getClickCount() == 2 && row != -1 && col != -1) {
+		        if (row != -1 && col != -1) {
 		        	Object value = reuniones.getTabla().getValueAt(row, col);
 		        	if (value != null) {
 		        		reunionInfo.setReunion(reuniones.obtenerDatosReunion(row, col));		        		
@@ -205,6 +205,26 @@ public class Principal extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				visualizarPaneles(enumAcciones.PANEL_REUNIONES);
+			}
+		});
+
+		reunionInfo.getAceptarBoton().addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				metodos.actualizarReunion(reunionInfo.getId(), "aceptada");
+				visualizarPaneles(enumAcciones.PANEL_MENU);
+				reunionInfo.getAceptarBoton().setEnabled(false);
+				reunionInfo.getRechazarBoton().setEnabled(false);
+			}
+		});
+
+		reunionInfo.getRechazarBoton().addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				metodos.actualizarReunion(reunionInfo.getId(), "denegada");
+				visualizarPaneles(enumAcciones.PANEL_MENU);
+				reunionInfo.getAceptarBoton().setEnabled(false);
+				reunionInfo.getRechazarBoton().setEnabled(false);
 			}
 		});
 	}
@@ -235,6 +255,8 @@ public class Principal extends JFrame {
 			break;
 		case PANEL_INFO_REUNION:
 			reunionInfo.setVisible(true);
+			reunionInfo.getAceptarBoton().setEnabled(true);
+			reunionInfo.getRechazarBoton().setEnabled(true);
 			break;
 		default:
 			break;

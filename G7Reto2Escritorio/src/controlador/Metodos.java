@@ -37,6 +37,7 @@ public class Metodos {
 	private final String mensajeProfesores = "PROFESORES";
 	private final String mensajeOtros = "OTROS";
 	private final String mensajeReuniones = "REUNIONES";
+	private final String mensajeActuReunion = "ACTUALIZARREUNION";
 	
 	private ObjectInputStream oinput;
 	
@@ -120,7 +121,7 @@ public class Metodos {
 	}
 	
 	public Object[][][] AplicarReuniones(DefaultTableModel modelo, Object[][] reuniones) {
-		Object[][][] reunionesCompleto = new String[modelo.getRowCount()][modelo.getColumnCount()][8];
+		Object[][][] reunionesCompleto = new String[modelo.getRowCount()][modelo.getColumnCount()][9];
 		for (int c = 1; c < modelo.getColumnCount(); c++) {
 			for (int r = 0; r < modelo.getRowCount(); r++) {
 				modelo.setValueAt(null, r, c);
@@ -132,19 +133,22 @@ public class Metodos {
 
 		Calendar c = Calendar.getInstance();
 		for (int x = 0; x < reuniones.length; x++) {
-			for (int y = 0; y < reuniones[x].length; y++) {
-				System.out.println(y+": "+reuniones[x][y].toString());
-			}
 			Calendar fecha = (Calendar) c.clone();
 			fecha.setTime((Timestamp) reuniones[x][3]);
 			int hora = Math.clamp(fecha.get(Calendar.HOUR_OF_DAY) - 8, 0, 5);
 			int dia = Math.clamp(fecha.get(Calendar.DAY_OF_WEEK), 1, 5);
-			for (int y = 0; y < reuniones[x].length; y++) {
-				if (reuniones[x][y].getClass() == Timestamp.class)
-					reunionesCompleto[hora][dia][y] = (String) new SimpleDateFormat("yyyy/MM/dd - hh:mm").format(reuniones[x][y]);
-				else reunionesCompleto[hora][dia][y] = reuniones[x][y];
+			String valor = (String) modelo.getValueAt(hora, dia);
+			if (valor != null) {
+				reunionesCompleto[hora][dia][0] = "conflicto";
+				modelo.setValueAt(valor + " / " + (String) reuniones[x][1], hora, dia);
+			} else {
+				for (int y = 0; y < reuniones[x].length; y++) {
+					if (reuniones[x][y].getClass() == Timestamp.class)
+						reunionesCompleto[hora][dia][y] = (String) new SimpleDateFormat("yyyy/MM/dd - hh:mm").format(reuniones[x][y]);
+					else reunionesCompleto[hora][dia][y] = reuniones[x][y];
+				}
+				modelo.setValueAt((String) reuniones[x][1], hora, dia);
 			}
-			modelo.setValueAt((String) reuniones[x][1], hora, dia);
 		}
 
 		return reunionesCompleto;
@@ -291,5 +295,22 @@ public class Metodos {
             }
         }
         return builder.toString().trim();
+	}
+	
+	public void actualizarReunion(int id, String estado) {
+		try {
+            DataOutputStream output = new DataOutputStream(Conexion.conexion.getOutputStream());
+            output.writeUTF(mensajeActuReunion);
+            output.flush();
+
+            output.writeInt(id);
+            output.flush();
+
+            output.writeUTF(estado);
+            output.flush();
+            
+        } catch (IOException ioe) {
+        	ioe.printStackTrace();
+        }
 	}
 }

@@ -37,13 +37,6 @@ public class Servidor {
 				JsonObject objeto = elemento.getAsJsonObject();
 				
 				centros.put(objeto.get("CCEN").getAsInt(), objeto.get("NOM").getAsString());
-				
-				/*System.out.println("Centro:");
-				for (Map.Entry<String, JsonElement> entry : objeto.entrySet()) {
-					
-					System.out.println("\t" + entry.getKey() + ": " + entry.getValue().getAsString());
-				}
-				System.out.println();*/
 			}
 
 		} catch (FileNotFoundException e) {

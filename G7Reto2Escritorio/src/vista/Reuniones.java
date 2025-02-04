@@ -25,7 +25,7 @@ public class Reuniones extends JPanel {
 
 	private Metodos metodos = new Metodos();
 	
-	private Object[][][] reunionesCompleto = new Object[6][6][8];
+	private Object[][][] reunionesCompleto = new Object[6][6][9];
 	private DefaultTableModel modelo = new TablaNoEditable(
 			new Object[][] {
 				{"8:00", null, null, null, null, null},
@@ -48,7 +48,7 @@ public class Reuniones extends JPanel {
 		volverBoton.setBounds(10, 11, 87, 23);
 		add(volverBoton);
 		
-		JLabel infoLabel = new JLabel("haz doble click en una reunion para ver mas informacion");
+		JLabel infoLabel = new JLabel("haz click en una reunion para ver mas informacion");
 		infoLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		infoLabel.setBounds(0, 22, 700, 14);
 		add(infoLabel);
