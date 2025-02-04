@@ -6,16 +6,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import controlador.InterfazControl;
 import controlador.Metodos;
-import modelo.Conexion;
 
 public class Principal extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -25,11 +21,11 @@ public class Principal extends JFrame {
 		PANEL_MENU,
 		PANEL_HORARIO,
 		PANEL_OTROS,
-		PANEL_REUNIONES
+		PANEL_REUNIONES,
+		PANEL_INFO_REUNION
 	}
 
 	private Metodos metodos = new Metodos();
-	private InterfazControl interfaz = new InterfazControl();
 	
 	private JPanel panelContenedor;
 	private Login login;
@@ -37,6 +33,7 @@ public class Principal extends JFrame {
 	private Horario horario;
 	private Otros otros;
 	private Reuniones reuniones;
+	private ReunionInfo reunionInfo;
 	
 	public Principal() {
 		crearPanelContenedor();
@@ -45,7 +42,8 @@ public class Principal extends JFrame {
 		crearPanelHorario();
 		crearPanelOtros();
 		crearPanelReuniones();
-
+		crearPanelReunionInfo();
+		
 		visualizarPaneles(enumAcciones.PANEL_LOGIN);
 		
 		addWindowListener(new WindowAdapter() {
@@ -59,8 +57,8 @@ public class Principal extends JFrame {
                 }
             }
         });
-		
-		interfaz.CrearInputStream();
+
+		metodos.CrearInputStream();
 	}
 
 	private void crearPanelContenedor() {
@@ -111,7 +109,7 @@ public class Principal extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				visualizarPaneles(enumAcciones.PANEL_HORARIO);
 				
-				horario.setHorarios(interfaz.ObtenerHorarios());
+				horario.setHorarios(metodos.ObtenerHorarios());
 			}
 		});
 
@@ -121,7 +119,7 @@ public class Principal extends JFrame {
 				visualizarPaneles(enumAcciones.PANEL_OTROS);
 				otros.getTablaPanel().setVisible(false);
 
-				otros.setProfesores(interfaz.ObtenerProfesores());
+				otros.setProfesores(metodos.ObtenerProfesores());
 			}
 		});
 
@@ -129,6 +127,8 @@ public class Principal extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				visualizarPaneles(enumAcciones.PANEL_REUNIONES);
+
+				reuniones.setReuniones(metodos.ObtenerReuniones());
 			}
 		});
 	}
@@ -160,7 +160,7 @@ public class Principal extends JFrame {
 		
 		otros.getProfesorCombo().addActionListener (new ActionListener () {
 		    public void actionPerformed(ActionEvent e) {
-				otros.setHorarios(interfaz.ObtenerOtrosHorarios(otros.profesores, otros.getProfesorCombo()));
+				otros.setHorarios(metodos.ObtenerOtrosHorarios(otros.profesores, otros.getProfesorCombo()));
 				otros.getTablaPanel().setVisible(true);
 		    }
 		});
@@ -177,6 +177,56 @@ public class Principal extends JFrame {
 				visualizarPaneles(enumAcciones.PANEL_MENU);
 			}
 		});
+		
+		reuniones.getTabla().addMouseListener(new MouseAdapter() {
+		    @Override
+		    public void mouseClicked(MouseEvent evt) {
+		    	int row = -1, col = -1;
+		        row = reuniones.getTabla().getSelectedRow();
+		        col = reuniones.getTabla().getSelectedColumn();
+		        
+		        if (row != -1 && col != -1) {
+		        	Object value = reuniones.getTabla().getValueAt(row, col);
+		        	if (value != null) {
+		        		reunionInfo.setReunion(reuniones.obtenerDatosReunion(row, col));		        		
+						visualizarPaneles(enumAcciones.PANEL_INFO_REUNION);
+		        	}
+		        }
+		    }
+		});
+	}
+	
+	private void crearPanelReunionInfo() {
+		reunionInfo = new ReunionInfo();
+		panelContenedor.add(reunionInfo);
+		reunionInfo.setVisible(false);
+
+		reunionInfo.getVolverBoton().addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				visualizarPaneles(enumAcciones.PANEL_REUNIONES);
+			}
+		});
+
+		reunionInfo.getAceptarBoton().addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				metodos.actualizarReunion(reunionInfo.getId(), "aceptada");
+				visualizarPaneles(enumAcciones.PANEL_MENU);
+				reunionInfo.getAceptarBoton().setEnabled(false);
+				reunionInfo.getRechazarBoton().setEnabled(false);
+			}
+		});
+
+		reunionInfo.getRechazarBoton().addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				metodos.actualizarReunion(reunionInfo.getId(), "denegada");
+				visualizarPaneles(enumAcciones.PANEL_MENU);
+				reunionInfo.getAceptarBoton().setEnabled(false);
+				reunionInfo.getRechazarBoton().setEnabled(false);
+			}
+		});
 	}
 
 	public void visualizarPaneles(enumAcciones panel) {
@@ -185,6 +235,7 @@ public class Principal extends JFrame {
 		horario.setVisible(false);
 		otros.setVisible(false);
 		reuniones.setVisible(false);
+		reunionInfo.setVisible(false);
 
 		switch (panel) {
 		case PANEL_LOGIN:
@@ -201,6 +252,11 @@ public class Principal extends JFrame {
 			break;
 		case PANEL_REUNIONES:
 			reuniones.setVisible(true);
+			break;
+		case PANEL_INFO_REUNION:
+			reunionInfo.setVisible(true);
+			reunionInfo.getAceptarBoton().setEnabled(true);
+			reunionInfo.getRechazarBoton().setEnabled(true);
 			break;
 		default:
 			break;
@@ -225,6 +281,10 @@ public class Principal extends JFrame {
 	}
 	
 	public Reuniones getPanelReuniones() {
+		return reuniones;
+	}
+
+	public Reuniones getPanelReunionInfo() {
 		return reuniones;
 	}
 }

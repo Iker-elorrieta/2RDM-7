@@ -1,5 +1,6 @@
 package controlador;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -7,13 +8,18 @@ import java.awt.Rectangle;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.sql.Timestamp;
 import java.text.Normalizer;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -27,6 +33,21 @@ public class Metodos {
 	
 	private final String mensajeDesconectar = "DESCONECTAR";
 	private final String mensajeLogout = "LOGOUT";
+	private final String mensajeHorario = "HORARIO";
+	private final String mensajeProfesores = "PROFESORES";
+	private final String mensajeOtros = "OTROS";
+	private final String mensajeReuniones = "REUNIONES";
+	private final String mensajeActuReunion = "ACTUALIZARREUNION";
+	
+	private ObjectInputStream oinput;
+	
+	public void CrearInputStream() {
+		try {
+			oinput = new ObjectInputStream(Conexion.conexion.getInputStream());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	public boolean Login(JTextField campoUsuario, JTextField campoClave, JLabel errorLabel) {
 		String usuario = campoUsuario.getText().toString();
@@ -42,13 +63,16 @@ public class Metodos {
 				
 				output.writeUTF(usuario);
 				output.writeUTF(clave);
+				output.writeBoolean(false);
 				
 				boolean respuesta = input.readBoolean();
-				//System.out.println("recieved: " + String.valueOf(respuesta));
+				System.out.println("recieved: " + String.valueOf(respuesta));
 				
-				if (!respuesta) errorLabel.setText("credenciales invalidas");
+				if (!respuesta)
+					errorLabel.setText("credenciales invalidas");
+				
 				return respuesta;
-			} catch(Exception ioe) { errorLabel.setText("no se pudo iniciar sesion"); }
+			} catch(Exception ioe) { errorLabel.setText("no se pudo iniciar sesion"); ioe.printStackTrace(); }
 		}
 		return false;
 	}
@@ -70,7 +94,7 @@ public class Metodos {
         Conexion.conexion.close();
 	}
 	
-	public String[][] AplicarHorarios(DefaultTableModel modelo, String[] horarios) {
+	public String[][] AplicarHorarios(DefaultTableModel modelo, Object[][] horarios) {
 		String[][] horariosCompleto = new String[modelo.getRowCount()][modelo.getColumnCount()];
 		for (int c = 1; c < modelo.getColumnCount(); c++) {
 			for (int r = 0; r < modelo.getRowCount(); r++) {
@@ -79,11 +103,9 @@ public class Metodos {
 			}
 		}
 		for (int i = 0; i < horarios.length; i++) {
-			String[] split = horarios[i].split(",");
-			
-			int hora = Integer.parseInt(split[1]);
+			int hora = Integer.parseInt((String) horarios[i][1]);
 			int dia = -1;
-			switch (split[2].charAt(0)) {
+			switch (((String) horarios[i][2]).charAt(0)) {
 				case 'L': dia = 0; break;
 				case 'M': dia = 1; break;
 				case 'X': dia = 2; break;
@@ -91,24 +113,82 @@ public class Metodos {
 				case 'V': dia = 4; break;
 			}
 			if (dia != -1) {
-				horariosCompleto[hora][dia + 1] = split[0];
-		        modelo.setValueAt(split[0], hora, dia + 1);
+				horariosCompleto[hora][dia + 1] = (String) horarios[i][0];
+		        modelo.setValueAt(horarios[i][0], hora, dia + 1);
 			}
 		}
 		return horariosCompleto;
 	}
 	
-	public void PrepararRenderer(JTable tabla, Component c, String[][] horariosComepleto, TableCellRenderer renderer, int row, int column) {
+	public Object[][][] AplicarReuniones(DefaultTableModel modelo, Object[][] reuniones) {
+		Object[][][] reunionesCompleto = new String[modelo.getRowCount()][modelo.getColumnCount()][9];
+		for (int c = 1; c < modelo.getColumnCount(); c++) {
+			for (int r = 0; r < modelo.getRowCount(); r++) {
+				modelo.setValueAt(null, r, c);
+				for (int x = 0; x < reunionesCompleto[r][c].length; x++) {
+					reunionesCompleto[r][c][x] = null;
+				}
+			}
+		}
+
+		Calendar c = Calendar.getInstance();
+		for (int x = 0; x < reuniones.length; x++) {
+			Calendar fecha = (Calendar) c.clone();
+			fecha.setTime((Timestamp) reuniones[x][3]);
+			int hora = Math.clamp(fecha.get(Calendar.HOUR_OF_DAY) - 8, 0, 5);
+			int dia = Math.clamp(fecha.get(Calendar.DAY_OF_WEEK), 1, 5);
+			String valor = (String) modelo.getValueAt(hora, dia);
+			if (valor != null) {
+				reunionesCompleto[hora][dia][0] = "conflicto";
+				modelo.setValueAt(valor + " / " + (String) reuniones[x][1], hora, dia);
+			} else {
+				for (int y = 0; y < reuniones[x].length; y++) {
+					if (reuniones[x][y].getClass() == Timestamp.class)
+						reunionesCompleto[hora][dia][y] = (String) new SimpleDateFormat("yyyy/MM/dd - hh:mm").format(reuniones[x][y]);
+					else reunionesCompleto[hora][dia][y] = reuniones[x][y];
+				}
+				modelo.setValueAt((String) reuniones[x][1], hora, dia);
+			}
+		}
+
+		return reunionesCompleto;
+	}
+	
+	public void PrepararRenderer(JTable tabla, Component c, Object[][] completo, TableCellRenderer renderer, int row, int column) {
         if (c instanceof JComponent) {
             JComponent jc = (JComponent) c;
             Object val = tabla.getValueAt(row, column);
             if (val != null) {
-            	String completo = horariosComepleto[row][column];
-            	if (completo != null) {
+            	String comp = (String) completo[row][column];
+            	if (comp != null) {
             		Rectangle rect = tabla.getCellRect(row, column, true);
-            		String result = WarpString(completo, val, jc, (int) rect.getWidth(), (int) rect.getHeight());
+            		String result = WarpString(comp, val, jc, (int) rect.getWidth(), (int) rect.getHeight());
             		if (result != null)
             			tabla.setValueAt(result, row, column);
+            	}
+            }
+        }
+	}
+	
+	public void PrepararRendererReuniones(JTable tabla, Component c, Object[][][] completo, TableCellRenderer renderer, int row, int column) {
+        if (c instanceof JComponent) {
+            JComponent jc = (JComponent) c;
+            Object val = tabla.getValueAt(row, column);
+			jc.setBackground(Color.white);
+            if (val != null) {
+            	String comp = (String) completo[row][column][1];
+            	if (comp != null) {
+            		Rectangle rect = tabla.getCellRect(row, column, true);
+            		String result = WarpString(comp, val, jc, (int) rect.getWidth(), (int) rect.getHeight());
+            		if (result != null)
+            			tabla.setValueAt(result, row, column);
+            		
+            		switch ((String) completo[row][column][0]) {
+	            		case "pendiente": jc.setBackground(Color.orange); break;
+	            		case "conflicto": jc.setBackground(Color.gray); break;
+	            		case "aceptada": jc.setBackground(Color.green); break;
+	            		case "denegada": jc.setBackground(Color.red); break;
+            		}
             	}
             }
         }
@@ -144,5 +224,93 @@ public class Metodos {
         	return "<html>"+resultado.substring(1)+"</html>";
     	}
 		return null;
+	}
+	
+	public Object[][] ObtenerHorarios() {
+		Object[][] array = new Object[0][0];
+		try {
+            DataOutputStream output = new DataOutputStream(Conexion.conexion.getOutputStream());
+            output.writeUTF(mensajeHorario);
+            output.flush();
+
+            if (oinput != null) array = (Object[][]) oinput.readObject();
+        } catch (IOException | ClassNotFoundException ioe) {
+        	ioe.printStackTrace();
+        }
+		return array;
+	}
+	
+	public Object[][] ObtenerProfesores() {
+		Object[][] array = new Object[0][0];
+		try {
+            DataOutputStream output = new DataOutputStream(Conexion.conexion.getOutputStream());
+            output.writeUTF(mensajeProfesores);
+            output.flush();
+
+            if (oinput != null) array = (Object[][]) oinput.readObject();
+        } catch (IOException | ClassNotFoundException ioe) {
+        	ioe.printStackTrace();
+        }
+		return array;
+	}
+	
+	public Object[][] ObtenerOtrosHorarios(int[] profesores, JComboBox<String> combo) {
+		Object[][] array = new String[0][0];
+		try {
+            DataOutputStream output = new DataOutputStream(Conexion.conexion.getOutputStream());
+            output.writeUTF(mensajeOtros);
+            output.flush();
+            
+            output.writeInt(profesores[combo.getSelectedIndex()]);
+            output.flush();
+
+            if (oinput != null) array = (Object[][]) oinput.readObject();
+        } catch (IOException | ClassNotFoundException ioe) {
+        	ioe.printStackTrace();
+        }
+		return array;
+	}
+	
+	public Object[][] ObtenerReuniones() {
+		Object[][] array = new Object[0][0];
+		try {
+            DataOutputStream output = new DataOutputStream(Conexion.conexion.getOutputStream());
+            output.writeUTF(mensajeReuniones);
+            output.flush();
+
+            if (oinput != null) array = (Object[][]) oinput.readObject();
+        } catch (IOException | ClassNotFoundException ioe) {
+        	ioe.printStackTrace();
+        }
+		return array;
+	}
+	
+	public String primeraMayus(String texto) {
+		if (texto == null || texto.isEmpty()) return texto;
+        String[] palabras = texto.split(" ");
+        StringBuilder builder = new StringBuilder();
+        for (String palabra : palabras) {
+            if (!palabra.isEmpty()) {
+                builder.append(Character.toUpperCase(palabra.charAt(0))).append(palabra.substring(1)).append(" ");
+            }
+        }
+        return builder.toString().trim();
+	}
+	
+	public void actualizarReunion(int id, String estado) {
+		try {
+            DataOutputStream output = new DataOutputStream(Conexion.conexion.getOutputStream());
+            output.writeUTF(mensajeActuReunion);
+            output.flush();
+
+            output.writeInt(id);
+            output.flush();
+
+            output.writeUTF(estado);
+            output.flush();
+            
+        } catch (IOException ioe) {
+        	ioe.printStackTrace();
+        }
 	}
 }

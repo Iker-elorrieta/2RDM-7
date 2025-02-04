@@ -2,28 +2,19 @@ package vista;
 
 import javax.swing.JPanel;
 
-import java.awt.Color;
 import java.awt.Component;
 
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
-import javax.swing.ToolTipManager;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
 
 import controlador.Metodos;
 import modelo.CenterCellRenderer;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Rectangle;
 
 public class Horario extends JPanel {
 
@@ -37,12 +28,12 @@ public class Horario extends JPanel {
 	private String[][] horariosCompleto = new String[6][6];
 	private DefaultTableModel modelo = new DefaultTableModel(
 			new Object[][] {
-				{"1", null, null, null, null, null},
-				{"2", null, null, null, null, null},
-				{"3", null, null, null, null, null},
-				{"4", null, null, null, null, null},
-				{"5", null, null, null, null, null},
-				{"6", null, null, null, null, null},
+				{"8:00", null, null, null, null, null},
+				{"9:00", null, null, null, null, null},
+				{"10:00", null, null, null, null, null},
+				{"11:00", null, null, null, null, null},
+				{"12:00", null, null, null, null, null},
+				{"13:00", null, null, null, null, null},
 			},
 			new String[] {
 				"Horas", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes"
@@ -99,7 +90,7 @@ public class Horario extends JPanel {
 		return this.volverBoton;
 	}
 	
-	public void setHorarios(String[] horarios) {
+	public void setHorarios(Object[][] horarios) {
 		horariosCompleto = metodos.AplicarHorarios(modelo, horarios);
 	}
 }
