@@ -66,15 +66,7 @@ public class Metodos {
 				boolean respuesta = input.readBoolean();
 				System.out.println("recieved: " + String.valueOf(respuesta));
 				
-				if (respuesta) {
-					Object[] datos = new Object[0];
-					if (oinput != null) {
-						datos = (Object[]) oinput.readObject();
-						System.out.println(datos.length);
-						
-						oinput.readUTF(); // matriculacion
-					}
-				} else
+				if (!respuesta)
 					errorLabel.setText("credenciales invalidas");
 				
 				return respuesta;

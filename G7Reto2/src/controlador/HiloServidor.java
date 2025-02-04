@@ -163,20 +163,22 @@ public class HiloServidor extends Thread {
                 if (autenticado) {
                     System.out.println("Cliente " + clienteId + " autenticado correctamente.");
                     
-                    Object[] datosUsuario = new Object[] {
-                    	usuario1.getTipos().getId(),
-                    	usuario1.getId(),
-                    	usuario1.getEmail(),
-                    	usuario1.getUsername(),
-                    	usuario1.getNombre(),
-                    	usuario1.getApellidos(),
-                    	usuario1.getDni()
-                    };
-                    oos.writeObject(datosUsuario);
-                    oos.flush();
-                    
-					dos.writeUTF(obtenerMatriculaciones(usuario1.getId()));
-                    dos.flush();
+                    if (esAndroid) {
+                        Object[] datosUsuario = new Object[] {
+                            	usuario1.getTipos().getId(),
+                            	usuario1.getId(),
+                            	usuario1.getEmail(),
+                            	usuario1.getUsername(),
+                            	usuario1.getNombre(),
+                            	usuario1.getApellidos(),
+                            	usuario1.getDni()
+                            };
+                            oos.writeObject(datosUsuario);
+                            oos.flush();
+                            
+        					dos.writeUTF(obtenerMatriculaciones(usuario1.getId()));
+                            dos.flush();
+                    }
                 } else
                     System.out.println("Cliente " + clienteId + " falló el inicio de sesión. Intentando de nuevo...");
 
@@ -414,6 +416,6 @@ public class HiloServidor extends Thread {
             ex.printStackTrace();
         }
         System.out.println("Llega a return");
-        return "";
+        return "-";
     }
 }
