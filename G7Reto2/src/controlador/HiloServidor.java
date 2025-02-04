@@ -30,6 +30,7 @@ public class HiloServidor extends Thread {
 	private final String mensajeReuniones = "REUNIONES";
 	private final String mensajeHorarioAlum = "HORARIOALUMNO";
 	private final String mensajeListaAlum = "LISTAALUMNOS";
+	private final String mensajeReunionesAlum = "REUNIONESALUMNO";
 
 	public HiloServidor(Socket cliente, int clienteId) {
 		this.cliente = cliente;
@@ -91,6 +92,11 @@ public class HiloServidor extends Thread {
 	                    oos.writeObject(array5);
 	                    oos.flush();
 						break;
+					case mensajeReunionesAlum:
+                        Object[][] array6 = obtenerReunionesAlumno(userId);
+                        oos.writeObject(array6);
+                        oos.flush();
+                        break;
 				}
 			}
 
@@ -417,5 +423,43 @@ public class HiloServidor extends Thread {
         }
         System.out.println("Llega a return");
         return "-";
+    }
+    
+    private Object[][] obtenerReunionesAlumno(int alumnoID) {
+        Transaction tx = null;
+        Object[][] reuniones = new Object[0][0];
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            tx = session.beginTransaction();
+
+            String hql = "FROM Reuniones WHERE alumno_id = :alumno";
+            Query query = session.createQuery(hql);
+            query.setParameter("alumno", alumnoID);
+
+            List<Reuniones> reunionesEncontradas = query.list();
+            reuniones = new Object[reunionesEncontradas.size()][7];
+            
+            for (int i = 0; i < reuniones.length; i++) {
+                Reuniones actual = reunionesEncontradas.get(i);
+                
+                reuniones[i][0] = actual.getEstado();
+                reuniones[i][1] = actual.getTitulo();
+                reuniones[i][2] = actual.getAsunto();
+                reuniones[i][3] = actual.getFecha();
+                reuniones[i][4] = actual.getIdCentro();
+                reuniones[i][5] = actual.getAula();
+                Users profesor = actual.getUsersByProfesorId();
+                reuniones[i][6] = profesor.getNombre() + " " + profesor.getApellidos();
+            }
+            
+            tx.commit();
+        } catch (Exception ex) {
+            if (tx != null) {
+                tx.rollback();
+            }
+            ex.printStackTrace();
+        }
+
+        return reuniones;
     }
 }
